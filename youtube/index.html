@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyst Academy — YouTube Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2a2a4a;
+    }
+    header h1 { font-size: 22px; font-weight: 700; color: #fff; }
+    header h1 span { color: #ff0000; }
+    .last-updated { font-size: 12px; color: #888; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .stat-card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+    .stat-card .label { font-size: 12px; color: #888; margin-bottom: 8px; }
+    .stat-card .value { font-size: 32px; font-weight: 700; color: #fff; }
+    .stat-card .sub { font-size: 12px; color: #4ade80; margin-top: 4px; }
+
+    /* Two column layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+
+    .card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .card h3 { font-size: 15px; font-weight: 600; color: #fff; margin-bottom: 16px; }
+
+    /* Video list */
+    .video-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid #2a2a4a;
+    }
+    .video-item:last-child { border-bottom: none; }
+    .video-rank {
+      font-size: 20px;
+      font-weight: 800;
+      color: #2a2a4a;
+      width: 28px;
+      flex-shrink: 0;
+      line-height: 1;
+      margin-top: 2px;
+    }
+    .video-info { flex: 1; }
+    .video-title { font-size: 13px; color: #e0e0e0; line-height: 1.4; margin-bottom: 4px; }
+    .video-meta { font-size: 11px; color: #888; }
+
+    /* Comment items */
+    .comment-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #2a2a4a;
+    }
+    .comment-item:last-child { border-bottom: none; }
+    .comment-text { font-size: 13px; color: #ccc; line-height: 1.5; margin-bottom: 6px; }
+    .comment-meta { font-size: 11px; color: #888; display: flex; gap: 12px; }
+    .comment-likes { color: #fbbf24; }
+
+    /* Competitor table */
+    .competitor-table { width: 100%; border-collapse: collapse; }
+    .competitor-table th {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #888;
+      text-align: left;
+      padding: 8px 0;
+      border-bottom: 1px solid #2a2a4a;
+    }
+    .competitor-table td {
+      font-size: 13px;
+      padding: 10px 0;
+      border-bottom: 1px solid #1a1a2e;
+      color: #ccc;
+    }
+    .competitor-table tr:last-child td { border-bottom: none; }
+    .you-row td { color: #4ade80 !important; font-weight: 600; }
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: #1e3a1e;
+      color: #4ade80;
+      margin-left: 8px;
+    }
+
+    /* Trending topics */
+    .topic-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .topic-tag {
+      background: #16213e;
+      border: 1px solid #2a2a4a;
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 12px;
+      color: #ccc;
+    }
+    .topic-tag.hot { border-color: #ff0000; color: #ff6b6b; }
+
+    /* Insights */
+    .insight-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #2a2a4a;
+    }
+    .insight-item:last-child { border-bottom: none; }
+    .insight-icon { font-size: 18px; flex-shrink: 0; }
+    .insight-text { font-size: 13px; color: #ccc; line-height: 1.5; }
+    .insight-text strong { color: #fff; }
+
+    .full-width { grid-column: 1 / -1; }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: #555;
+      border-top: 1px solid #1a1a2e;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Analyst <span>Academy</span> — YouTube Intelligence Dashboard</h1>
+  <div class="last-updated">Last updated: March 28, 2026 · Next update: April 6, 2026 (Monday)</div>
+</header>
+
+<div class="container">
+
+  <!-- Channel Stats -->
+  <div class="section-title">Channel Overview</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Subscribers</div>
+      <div class="value">228K</div>
+      <div class="sub">@analystacademy</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Total Views</div>
+      <div class="value">6.96M</div>
+      <div class="sub">All time</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Total Videos</div>
+      <div class="value">104</div>
+      <div class="sub">Since May 2018</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Videos (Last Year)</div>
+      <div class="value">6</div>
+      <div class="sub" style="color:#f87171;">⚠ Below target cadence</div>
+    </div>
+  </div>
+
+  <!-- Top Videos + Top Comments -->
+  <div class="two-col">
+    <div class="card">
+      <h3>🏆 Top Videos (All Time — by View Count)</h3>
+      <div class="video-item">
+        <div class="video-rank">1</div>
+        <div class="video-info">
+          <div class="video-title">PowerPoint Storytelling: How McKinsey, Bain and BCG create compelling presentations</div>
+          <div class="video-meta">Nov 2021</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-rank">2</div>
+        <div class="video-info">
+          <div class="video-title">The 5 Most Popular Consulting Slides (and how to build them)</div>
+          <div class="video-meta">Oct 2023</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-rank">3</div>
+        <div class="video-info">
+          <div class="video-title">How I redesigned 3 McKinsey slides (and made them better!)</div>
+          <div class="video-meta">Oct 2022</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-rank">4</div>
+        <div class="video-info">
+          <div class="video-title">I Uploaded 1,000 McKinsey Slides to ChatGPT. Here's What I learned.</div>
+          <div class="video-meta">May 2025 · 🔥 #1 in niche since 2025</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-rank">5</div>
+        <div class="video-info">
+          <div class="video-title">Data Visualization Crash Course | Consulting Best Practices</div>
+          <div class="video-meta">May 2023</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💬 Top Comments This Period</h3>
+      <div class="comment-item">
+        <div class="comment-text">"As a McK alum, I'm impressed with your conclusions. All of these are guidelines we try to follow..."</div>
+        <div class="comment-meta"><span class="comment-likes">👍 246</span><span>McKinsey ChatGPT video</span></div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-text">"KPMG associate director here — bottom line, senior guys are safe, but junior consulting staff... you are in deep trouble."</div>
+        <div class="comment-meta"><span class="comment-likes">👍 95</span><span>Claude vs McKinsey video</span></div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-text">"I took 1000 McKinsey slides and learned that most people in consulting probably ought to be institutionalized 😂"</div>
+        <div class="comment-meta"><span class="comment-likes">👍 251</span><span>McKinsey ChatGPT video</span></div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-text">"consultant types still obsessing over stupid slides rather than getting actual things done in the real world"</div>
+        <div class="comment-meta"><span class="comment-likes">👍 53</span><span>Claude vs McKinsey video</span></div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-text">"it's unbelievable how your channel doesn't have like 1 billion subscribers. Your content is really good!"</div>
+        <div class="comment-meta"><span class="comment-likes">👍 2</span><span>Consulting Firms video</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audience Requests + Competitor Tracker -->
+  <div class="two-col">
+    <div class="card">
+      <h3>🎯 Requested Video Topics (from comments)</h3>
+      <div class="insight-item">
+        <div class="insight-icon">🔥</div>
+        <div class="insight-text"><strong>How to present to people smarter than you</strong> — most requested across multiple videos</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">🔥</div>
+        <div class="insight-text"><strong>5 consulting frameworks for everyday life</strong> — high demand in Claude video comments</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">📊</div>
+        <div class="insight-text"><strong>The perfect PowerPoint slide (according to science)</strong></div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">📊</div>
+        <div class="insight-text"><strong>A consultant's guide to asking better questions</strong></div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">📊</div>
+        <div class="insight-text"><strong>How to write killer emails</strong></div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">📊</div>
+        <div class="insight-text"><strong>How to build a great presentation introduction</strong></div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">🤖</div>
+        <div class="insight-text"><strong>How to use AI safely in corporate environments</strong> — 28 likes on a single comment</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>🏁 Competitor Tracker</h3>
+      <table class="competitor-table">
+        <tr>
+          <th>Channel</th>
+          <th>Subscribers</th>
+          <th>Videos</th>
+        </tr>
+        <tr>
+          <td>One Skill PPT</td>
+          <td>822K</td>
+          <td>300</td>
+        </tr>
+        <tr>
+          <td>Alexander Lyon</td>
+          <td>767K</td>
+          <td>547</td>
+        </tr>
+        <tr class="you-row">
+          <td>Analyst Academy <span class="badge">YOU</span></td>
+          <td>228K</td>
+          <td>104</td>
+        </tr>
+        <tr>
+          <td>Firm Learning</td>
+          <td>256K</td>
+          <td>488</td>
+        </tr>
+        <tr>
+          <td>Dan Galletta</td>
+          <td>57K</td>
+          <td>64</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Trending Topics + Key Insights -->
+  <div class="two-col">
+    <div class="card">
+      <h3>📈 Trending Topics in Your Niche (2025–2026)</h3>
+      <div class="topic-list">
+        <span class="topic-tag hot">AI + McKinsey slides</span>
+        <span class="topic-tag hot">Claude for PowerPoint</span>
+        <span class="topic-tag hot">ChatGPT presentations</span>
+        <span class="topic-tag">McKinsey frameworks</span>
+        <span class="topic-tag">Talk like a consultant</span>
+        <span class="topic-tag">Consulting storytelling</span>
+        <span class="topic-tag">Data visualization</span>
+        <span class="topic-tag">SCR / SCQA frameworks</span>
+        <span class="topic-tag">Slide master setup</span>
+        <span class="topic-tag">Finance slide design</span>
+        <span class="topic-tag">Presentation introductions</span>
+        <span class="topic-tag">AI corporate safety</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💡 Key Insights & Action Items</h3>
+      <div class="insight-item">
+        <div class="insight-icon">🚀</div>
+        <div class="insight-text"><strong>You own the AI + McKinsey niche.</strong> Your videos are #1 and #2 in the most competitive search terms right now.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">⚠️</div>
+        <div class="insight-text"><strong>Posting frequency is your #1 growth lever.</strong> Only 6 videos in 12 months. Fans notice gaps.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">🤝</div>
+        <div class="insight-text"><strong>Collab opportunity:</strong> Alexander Lyon (767K) and Firm Learning (256K) are in your niche with no current connection to you.</div>
+      </div>
+      <div class="insight-item">
+        <div class="insight-icon">🎁</div>
+        <div class="insight-text"><strong>Monetization gap:</strong> Viewers are begging for your GPT, prompts, and templates. Package and sell them.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Analyst Academy YouTube Intelligence Dashboard · Auto-generated by Andy (AI) · Updated weekly every Monday
+</footer>
+
+</body>
+</html>

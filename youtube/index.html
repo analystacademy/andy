@@ -20,410 +20,191 @@
       --yellow-light: #fffbeb;
       --blue: #2563eb;
       --blue-light: #eff6ff;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
       --radius: 12px;
       --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.5;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
 
     /* Header */
-    header {
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; color: var(--text); text-decoration: none; }
+    .logo-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; }
+    .header-right { display: flex; align-items: center; gap: 12px; }
+    .updated-badge { font-size: 12px; color: var(--muted); background: var(--bg); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; }
+
+    /* Period selector */
+    .period-bar {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 0 32px;
+      padding: 10px 32px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      height: 60px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      gap: 24px;
     }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--text);
-      text-decoration: none;
-    }
-
-    .logo-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--accent);
-      border-radius: 50%;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .updated-badge {
+    .period-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.7px; }
+    .period-pills { display: flex; gap: 6px; }
+    .pill {
       font-size: 12px;
-      color: var(--muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      padding: 4px 12px;
+      font-weight: 500;
+      padding: 5px 14px;
       border-radius: 20px;
-    }
-
-    .refresh-btn {
-      font-size: 12px;
-      color: var(--accent);
-      background: var(--accent-light);
-      border: none;
-      padding: 6px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    /* Nav Tabs */
-    .nav {
+      border: 1px solid var(--border);
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 32px;
-      display: flex;
-      gap: 4px;
-    }
-
-    .nav-tab {
-      font-size: 13px;
-      font-weight: 500;
       color: var(--muted);
-      padding: 12px 16px;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
       transition: all 0.15s;
       user-select: none;
     }
+    .pill:hover { border-color: var(--text); color: var(--text); }
+    .pill.active { background: var(--text); color: #fff; border-color: var(--text); }
 
+    /* Nav */
+    .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; gap: 4px; }
+    .nav-tab { font-size: 13px; font-weight: 500; color: var(--muted); padding: 12px 16px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; user-select: none; }
     .nav-tab:hover { color: var(--text); }
-    .nav-tab.active {
-      color: var(--text);
-      border-bottom-color: var(--accent);
-    }
+    .nav-tab.active { color: var(--text); border-bottom-color: var(--accent); }
 
-    /* Layout */
-    .page { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+    /* Pages */
+    .page { display: none; padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
     .page.active { display: block; }
 
-    /* Stats row */
-    .stats-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-
-    .stat {
+    /* Goal tracker */
+    .goal-banner {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 20px 22px;
+      padding: 22px 28px;
+      margin-bottom: 24px;
       box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
     }
-
-    .stat-label {
+    .goal-block {}
+    .goal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .goal-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .goal-nums { font-size: 12px; color: var(--muted); }
+    .goal-nums strong { color: var(--text); font-weight: 700; }
+    .progress-track { height: 8px; background: var(--bg); border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+    .progress-fill { height: 100%; border-radius: 8px; transition: width 0.8s ease; }
+    .fill-green { background: linear-gradient(90deg, #4ade80, #16a34a); }
+    .fill-purple { background: linear-gradient(90deg, #a78bfa, #7c3aed); }
+    .goal-meta { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+    .goal-meta span strong { color: var(--text); }
+    .goal-milestone {
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--muted);
-      margin-bottom: 10px;
+      letter-spacing: 0.7px;
+      padding: 2px 8px;
+      border-radius: 4px;
     }
+    .ms-active { background: var(--green-light); color: var(--green); }
+    .ms-next { background: var(--purple-light); color: var(--purple); }
 
-    .stat-value {
-      font-size: 30px;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -1px;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .stat-sub {
-      font-size: 12px;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
+    /* Stats */
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+    .stat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -1px; line-height: 1; margin-bottom: 5px; }
+    .stat-sub { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
 
     .badge-green { color: var(--green); background: var(--green-light); padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .badge-red { color: var(--accent); background: var(--accent-light); padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .badge-yellow { color: var(--yellow); background: var(--yellow-light); padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .badge-blue { color: var(--blue); background: var(--blue-light); padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-purple { color: var(--purple); background: var(--purple-light); padding: 2px 7px; border-radius: 20px; font-size: 11px; font-weight: 600; }
 
     /* Grid */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
 
     /* Cards */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px 24px;
-      box-shadow: var(--shadow);
-    }
-
-    .card-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .card-title-icon {
-      font-size: 16px;
-      margin-right: 7px;
-    }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow); }
+    .card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .card-title-icon { font-size: 16px; margin-right: 7px; }
 
     /* Chart */
     .chart-wrap { position: relative; height: 180px; }
 
     /* Video list */
-    .video-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
-    }
+    .video-row { display: flex; align-items: flex-start; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--border); }
     .video-row:last-child { border-bottom: none; padding-bottom: 0; }
-
-    .video-num {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--border);
-      width: 24px;
-      flex-shrink: 0;
-      line-height: 1.3;
-    }
-
+    .video-num { font-size: 17px; font-weight: 800; color: #ddd; width: 22px; flex-shrink: 0; line-height: 1.3; }
     .video-title { font-size: 13px; color: var(--text); line-height: 1.4; margin-bottom: 3px; font-weight: 500; }
     .video-meta { font-size: 11px; color: var(--muted); }
     .video-hot { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 4px; margin-left: 6px; }
 
-    /* Comment card */
-    .comment-row {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
+    /* Empty state */
+    .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 13px; }
+
+    /* Comment */
+    .comment-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
     .comment-row:last-child { border-bottom: none; padding-bottom: 0; }
     .comment-text { font-size: 13px; color: var(--text); line-height: 1.5; margin-bottom: 6px; }
     .comment-meta { font-size: 11px; color: var(--muted); display: flex; gap: 12px; align-items: center; }
     .like-count { font-weight: 600; color: var(--yellow); }
 
-    /* Competitor table */
+    /* Table */
     table { width: 100%; border-collapse: collapse; }
-    th {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      color: var(--muted);
-      text-align: left;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
-    }
-    td {
-      font-size: 13px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--bg);
-      color: var(--text);
-    }
+    th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); text-align: left; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    td { font-size: 13px; padding: 10px 0; border-bottom: 1px solid var(--bg); color: var(--text); }
     tr:last-child td { border-bottom: none; }
     .you-row td { font-weight: 700; color: var(--green) !important; }
     .you-pill { display: inline-block; font-size: 10px; background: var(--green-light); color: var(--green); padding: 1px 7px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
 
-    /* Topic tags */
+    /* Tags */
     .tags { display: flex; flex-wrap: wrap; gap: 8px; }
-    .tag {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 5px 13px;
-      font-size: 12px;
-      color: var(--text);
-    }
+    .tag { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 5px 13px; font-size: 12px; color: var(--text); }
     .tag.hot { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
 
-    /* Insight rows */
-    .insight-row {
-      display: flex;
-      gap: 12px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
-      align-items: flex-start;
-    }
+    /* Insight */
+    .insight-row { display: flex; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
     .insight-row:last-child { border-bottom: none; }
     .insight-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
     .insight-body { font-size: 13px; color: var(--text); line-height: 1.5; }
     .insight-body strong { font-weight: 600; }
 
-    /* Video idea card */
-    .idea-card {
-      background: linear-gradient(135deg, #fafafa, #f3f3f0);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: var(--shadow);
-      margin-bottom: 20px;
-    }
-
-    .idea-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--accent);
-      margin-bottom: 10px;
-    }
-
-    .idea-title {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 10px;
-      line-height: 1.3;
-      letter-spacing: -0.4px;
-    }
-
+    /* Content ideas */
+    .idea-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 20px; }
+    .idea-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--accent); margin-bottom: 10px; }
+    .idea-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; line-height: 1.3; letter-spacing: -0.4px; }
     .idea-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; }
-
-    .idea-outline {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-    }
-
+    .idea-outline { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
     .idea-outline-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); margin-bottom: 10px; }
-
-    .outline-item {
-      display: flex;
-      gap: 10px;
-      padding: 5px 0;
-      font-size: 13px;
-      color: var(--text);
-    }
-
+    .outline-item { display: flex; gap: 10px; padding: 5px 0; font-size: 13px; color: var(--text); }
     .outline-num { color: var(--muted); font-weight: 600; width: 18px; flex-shrink: 0; }
 
-    /* Content calendar */
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-
-    .cal-week {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-    }
-
-    .cal-week-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
+    /* Calendar */
+    .cal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .cal-week { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .cal-week-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--muted); margin-bottom: 8px; }
     .cal-week-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; }
-    .cal-week-type { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    .cal-week-type { font-size: 11px; color: var(--muted); margin-top: 6px; }
 
-    /* Gap analysis */
-    .gap-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
+    /* Gap */
+    .gap-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .gap-item:last-child { border-bottom: none; }
-    .gap-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+    .gap-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
     .gap-dot.medium { background: var(--yellow); }
     .gap-dot.low { background: var(--border); }
     .gap-text { font-size: 13px; color: var(--text); }
     .gap-who { font-size: 11px; color: var(--muted); }
 
-    /* Collab radar */
-    .collab-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-    }
+    /* Collab */
+    .collab-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
     .collab-item:last-child { border-bottom: none; }
-    .collab-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
+    .collab-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
     .collab-info { flex: 1; }
     .collab-name { font-size: 13px; font-weight: 600; color: var(--text); }
     .collab-meta { font-size: 11px; color: var(--muted); }
-    .collab-action {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 5px 12px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      cursor: pointer;
-      color: var(--text);
-    }
+    .collab-action { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; color: var(--text); }
 
-    /* Section divider */
-    .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--muted);
-      margin-bottom: 14px;
-      margin-top: 8px;
-    }
+    .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 14px; margin-top: 8px; }
 
-    footer {
-      text-align: center;
-      padding: 28px;
-      font-size: 12px;
-      color: var(--muted);
-      border-top: 1px solid var(--border);
-      background: var(--surface);
-      margin-top: 20px;
-    }
+    footer { text-align: center; padding: 24px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); background: var(--surface); margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -435,20 +216,66 @@
   </a>
   <div class="header-right">
     <span class="updated-badge">Updated Mar 28, 2026</span>
-    <button class="refresh-btn">Next update Apr 6 →</button>
   </div>
 </header>
 
+<!-- Period selector -->
+<div class="period-bar">
+  <span class="period-label">Time Period</span>
+  <div class="period-pills">
+    <div class="pill" onclick="setPeriod('30d', this)">30 days</div>
+    <div class="pill" onclick="setPeriod('90d', this)">3 months</div>
+    <div class="pill active" onclick="setPeriod('12m', this)">12 months</div>
+    <div class="pill" onclick="setPeriod('all', this)">All time</div>
+  </div>
+</div>
+
+<!-- Nav Tabs -->
 <div class="nav">
-  <div class="nav-tab active" onclick="showTab('overview')">Overview</div>
-  <div class="nav-tab" onclick="showTab('content')">Content Ideas</div>
-  <div class="nav-tab" onclick="showTab('comments')">Comments</div>
-  <div class="nav-tab" onclick="showTab('competitors')">Competitors</div>
+  <div class="nav-tab active" onclick="showTab('overview', event)">Overview</div>
+  <div class="nav-tab" onclick="showTab('content', event)">Content Ideas</div>
+  <div class="nav-tab" onclick="showTab('comments', event)">Comments</div>
+  <div class="nav-tab" onclick="showTab('competitors', event)">Competitors</div>
 </div>
 
 <!-- OVERVIEW TAB -->
 <div class="page active" id="tab-overview">
 
+  <!-- Goal Tracker -->
+  <div class="goal-banner">
+    <div class="goal-block">
+      <div class="goal-header">
+        <div class="goal-title">🎯 Goal 1 — 500K Subscribers <span class="goal-milestone ms-active">Active</span></div>
+        <div class="goal-nums"><strong id="g1-pct">45.6%</strong> there</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill fill-green" id="g1-bar" style="width: 45.6%"></div>
+      </div>
+      <div class="goal-meta">
+        <span>Current: <strong>228K</strong></span>
+        <span>Target: <strong>500K</strong></span>
+        <span>Remaining: <strong>272K</strong></span>
+        <span>Est. at current rate: <strong>~2.5 yrs</strong></span>
+      </div>
+    </div>
+    <div class="goal-block">
+      <div class="goal-header">
+        <div class="goal-title">🏆 Goal 2 — 1M Subscribers <span class="goal-milestone ms-next">Next milestone</span></div>
+        <div class="goal-nums"><strong>22.8%</strong> there</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill fill-purple" style="width: 22.8%"></div>
+      </div>
+      <div class="goal-meta">
+        <span>Current: <strong>228K</strong></span>
+        <span>Target: <strong>1M</strong></span>
+        <span>Remaining: <strong>772K</strong></span>
+        <span>Est. at current rate: <strong>~7 yrs</strong> — post more!</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
   <div class="stats-row">
     <div class="stat">
       <div class="stat-label">Subscribers</div>
@@ -456,26 +283,26 @@
       <div class="stat-sub">@analystacademy</div>
     </div>
     <div class="stat">
-      <div class="stat-label">Total Views</div>
-      <div class="stat-value">6.96M</div>
-      <div class="stat-sub">All time</div>
+      <div class="stat-label" id="views-label">Views (12 months)</div>
+      <div class="stat-value" id="views-val">~1.2M</div>
+      <div class="stat-sub">Est. from top video performance</div>
     </div>
     <div class="stat">
-      <div class="stat-label">Videos Posted</div>
-      <div class="stat-value">104</div>
-      <div class="stat-sub">Since May 2018</div>
-    </div>
-    <div class="stat">
-      <div class="stat-label">Last 12 Months</div>
-      <div class="stat-value">6</div>
+      <div class="stat-label" id="videos-label">Videos Published</div>
+      <div class="stat-value" id="videos-val">6</div>
       <div class="stat-sub"><span class="badge-red">⚠ Low cadence</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Avg Subs / Video</div>
+      <div class="stat-value" id="avg-val">~3.5K</div>
+      <div class="stat-sub">Estimated per publish</div>
     </div>
   </div>
 
   <div class="grid-2">
     <div class="card">
       <div class="card-title">
-        <span><span class="card-title-icon">📈</span>Subscriber Growth (Est.)</span>
+        <span><span class="card-title-icon">📈</span>Subscriber Growth</span>
       </div>
       <div class="chart-wrap">
         <canvas id="growthChart"></canvas>
@@ -483,42 +310,10 @@
     </div>
 
     <div class="card">
-      <div class="card-title"><span><span class="card-title-icon">🏆</span>Top Videos — All Time</span></div>
-      <div class="video-row">
-        <div class="video-num">1</div>
-        <div>
-          <div class="video-title">PowerPoint Storytelling: How McKinsey, Bain and BCG create compelling presentations</div>
-          <div class="video-meta">Nov 2021</div>
-        </div>
+      <div class="card-title">
+        <span><span class="card-title-icon">🏆</span>Top Videos — <span id="period-label-videos">Last 12 Months</span></span>
       </div>
-      <div class="video-row">
-        <div class="video-num">2</div>
-        <div>
-          <div class="video-title">The 5 Most Popular Consulting Slides (and how to build them)</div>
-          <div class="video-meta">Oct 2023</div>
-        </div>
-      </div>
-      <div class="video-row">
-        <div class="video-num">3</div>
-        <div>
-          <div class="video-title">How I redesigned 3 McKinsey slides (and made them better!)</div>
-          <div class="video-meta">Oct 2022</div>
-        </div>
-      </div>
-      <div class="video-row">
-        <div class="video-num">4</div>
-        <div>
-          <div class="video-title">I Uploaded 1,000 McKinsey Slides to ChatGPT. Here's What I learned.<span class="video-hot">#1 in niche</span></div>
-          <div class="video-meta">May 2025</div>
-        </div>
-      </div>
-      <div class="video-row">
-        <div class="video-num">5</div>
-        <div>
-          <div class="video-title">Data Visualization Crash Course | Consulting Best Practices</div>
-          <div class="video-meta">May 2023</div>
-        </div>
-      </div>
+      <div id="video-list"><!-- populated by JS --></div>
     </div>
   </div>
 
@@ -527,11 +322,11 @@
       <div class="card-title"><span><span class="card-title-icon">💡</span>Key Insights</span></div>
       <div class="insight-row">
         <div class="insight-icon">🚀</div>
-        <div class="insight-body"><strong>You own the AI + McKinsey niche.</strong> Your videos rank #1 and #2 for the most competitive search terms in 2025–26.</div>
+        <div class="insight-body"><strong>You own the AI + McKinsey niche.</strong> Your videos rank #1 and #2 for the most competitive search terms since 2025.</div>
       </div>
       <div class="insight-row">
         <div class="insight-icon">⚠️</div>
-        <div class="insight-body"><strong>Posting frequency is your #1 growth lever.</strong> Only 6 videos in 12 months — loyal fans are noticing the gaps.</div>
+        <div class="insight-body"><strong>Posting frequency is your #1 growth lever.</strong> At 6 videos/year, hitting 500K will take ~2.5 years. At 2x/month it could be under 1 year.</div>
       </div>
       <div class="insight-row">
         <div class="insight-icon">🎁</div>
@@ -539,7 +334,7 @@
       </div>
       <div class="insight-row">
         <div class="insight-icon">🤝</div>
-        <div class="insight-body"><strong>Collab opportunity.</strong> Alexander Lyon (767K) and Firm Learning (256K) are in your niche with zero connection to you yet.</div>
+        <div class="insight-body"><strong>Collab opportunity.</strong> Alexander Lyon (767K) and Firm Learning (256K) are in your niche — a single collab could add 5–10K subscribers overnight.</div>
       </div>
     </div>
 
@@ -561,16 +356,14 @@
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- CONTENT IDEAS TAB -->
 <div class="page" id="tab-content">
-
   <div class="idea-card">
     <div class="idea-label">🎯 Video of the Week — Andy's Pick</div>
     <div class="idea-title">"How to Present to People Smarter Than You"</div>
-    <div class="idea-desc">This is your single most-requested video topic across the last 6 months of comments. It sits perfectly at the intersection of your consulting credibility and communication coaching — and no competitor has nailed it yet. High search volume, zero competition from you or your rivals.</div>
+    <div class="idea-desc">Your single most-requested topic across the last 6 months of comments. It sits perfectly at the intersection of your consulting credibility and communication coaching — and no competitor has nailed it yet. High search volume, direct audience demand, zero competition from you or rivals.</div>
     <div class="idea-outline">
       <div class="idea-outline-title">Suggested Outline</div>
       <div class="outline-item"><span class="outline-num">1.</span>Why this situation terrifies most people (hook)</div>
@@ -608,13 +401,12 @@
     </div>
   </div>
 
-  <div class="section-label">More Ideas — Requested by Your Audience</div>
   <div class="grid-2">
     <div class="card">
-      <div class="card-title">From Comments</div>
+      <div class="card-title">More Ideas — Requested by Your Audience</div>
       <div class="insight-row">
         <div class="insight-icon">📧</div>
-        <div class="insight-body"><strong>A consultant's guide to writing killer emails</strong> — multiple requests, #1 in the Claude video poll</div>
+        <div class="insight-body"><strong>A consultant's guide to writing killer emails</strong> — #1 in the Claude video comment poll</div>
       </div>
       <div class="insight-row">
         <div class="insight-icon">❓</div>
@@ -626,17 +418,21 @@
       </div>
       <div class="insight-row">
         <div class="insight-icon">🏦</div>
-        <div class="insight-body"><strong>Investor Relations slides — a teardown</strong> — one viewer specifically requested IR/finance slides</div>
+        <div class="insight-body"><strong>Investor Relations slides — a teardown</strong> — finance audience is requesting IR-specific content</div>
+      </div>
+      <div class="insight-row">
+        <div class="insight-icon">🤖</div>
+        <div class="insight-body"><strong>I tested Gemini vs Claude on consulting slides</strong> — natural follow-up to your Claude video while it's hot</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Gap Analysis — Topics Competitors Cover That You Don't</div>
+      <div class="card-title">Gap Analysis — Topics You Haven't Covered</div>
       <div class="gap-item">
         <div class="gap-dot"></div>
         <div>
           <div class="gap-text">Top-down communication / pyramid principle</div>
-          <div class="gap-who">Dan Galletta has 3+ videos on this — high views</div>
+          <div class="gap-who">Dan Galletta has 3+ high-view videos on this</div>
         </div>
       </div>
       <div class="gap-item">
@@ -656,19 +452,17 @@
       <div class="gap-item">
         <div class="gap-dot low"></div>
         <div>
-          <div class="gap-text">Google Slides / Canva comparisons</div>
+          <div class="gap-text">Google Slides vs PowerPoint comparison</div>
           <div class="gap-who">Frequently searched, no strong competitor owns it</div>
         </div>
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- COMMENTS TAB -->
 <div class="page" id="tab-comments">
-
-  <div class="stats-row" style="grid-template-columns: repeat(3, 1fr);">
+  <div class="stats-row" style="grid-template-columns: repeat(3,1fr);">
     <div class="stat">
       <div class="stat-label">Total Comments Analyzed</div>
       <div class="stat-value">~230</div>
@@ -680,7 +474,7 @@
       <div class="stat-sub"><span class="badge-green">Positive</span></div>
     </div>
     <div class="stat">
-      <div class="stat-label">Avg Likes on Top Comments</div>
+      <div class="stat-label">Avg Likes — Top Comments</div>
       <div class="stat-value">130</div>
       <div class="stat-sub">Per top-10 comment</div>
     </div>
@@ -694,101 +488,58 @@
         <div class="comment-meta"><span class="like-count">👍 251</span> McKinsey ChatGPT video</div>
       </div>
       <div class="comment-row">
-        <div class="comment-text">"As a McK alum, I'm impressed with your conclusions. All of these are guidelines we try to follow. One additional one is that you see a lot of sentences or full phrases rather than just single-word points..."</div>
+        <div class="comment-text">"As a McK alum, I'm impressed with your conclusions. All of these are guidelines we try to follow..."</div>
         <div class="comment-meta"><span class="like-count">👍 246</span> McKinsey ChatGPT video</div>
       </div>
       <div class="comment-row">
-        <div class="comment-text">"KPMG associate director here — bottom line, senior guys are safe and will even get much help when this remaining 10% gap closes. As for junior consulting staff — mates, you are in deep trouble."</div>
+        <div class="comment-text">"KPMG associate director here — senior guys are safe, but junior consulting staff, you are in deep trouble."</div>
         <div class="comment-meta"><span class="like-count">👍 95</span> Claude vs McKinsey video</div>
       </div>
       <div class="comment-row">
         <div class="comment-text">"consultant types still obsessing over stupid slides rather than getting actual things done in the real world"</div>
         <div class="comment-meta"><span class="like-count">👍 53</span> Claude vs McKinsey video</div>
       </div>
-      <div class="comment-row">
-        <div class="comment-text">"Shocking Microsoft didn't figure this out first with Copilot 😮"</div>
-        <div class="comment-meta"><span class="like-count">👍 15</span> Claude vs McKinsey video</div>
-      </div>
     </div>
-
     <div class="card">
-      <div class="card-title">Notable Engagement</div>
+      <div class="card-title">Notable Signals</div>
       <div class="comment-row">
-        <div class="comment-text">"If you are operating in a corporate environment, highly suggest not uploading documents to ChatGPT. Likely against company policy and will get detected."</div>
-        <div class="comment-meta"><span class="like-count">👍 28</span> ChatGPT 10x Slides video · <span class="badge-yellow">⚠ Content opportunity</span></div>
+        <div class="comment-text">"If you are operating in a corporate environment, highly suggest not uploading documents to ChatGPT."</div>
+        <div class="comment-meta"><span class="like-count">👍 28</span> <span class="badge-yellow">⚠ Video idea</span></div>
       </div>
       <div class="comment-row">
         <div class="comment-text">"Could you share your customized GPT here so we all have the opportunity to chat with your database?"</div>
-        <div class="comment-meta"><span class="like-count">👍 12</span> McKinsey ChatGPT video · <span class="badge-blue">🎁 Product idea</span></div>
+        <div class="comment-meta"><span class="like-count">👍 12</span> <span class="badge-blue">🎁 Product idea</span></div>
+      </div>
+      <div class="comment-row">
+        <div class="comment-text">"Hey I visited your channel and saw you hadn't posted in 4 months and genuinely got sad... seeing this new video got me excited again ❤"</div>
+        <div class="comment-meta"><span class="like-count">👍 6</span> <span class="badge-red">⚠ Post more!</span></div>
       </div>
       <div class="comment-row">
         <div class="comment-text">"it's unbelievable how your channel doesn't have like 1 billion subscribers. Your content is really good!"</div>
-        <div class="comment-meta"><span class="like-count">👍 2</span> Consulting Firms video · <span class="badge-green">❤️ Loyal fan</span></div>
-      </div>
-      <div class="comment-row">
-        <div class="comment-text">"Hey I visited your channel today and saw you last posted 4 months back and genuinely got sad... seeing this new video got me excited again ❤"</div>
-        <div class="comment-meta"><span class="like-count">👍 6</span> Chart Types video · <span class="badge-red">⚠ Post more!</span></div>
+        <div class="comment-meta"><span class="like-count">👍 2</span> <span class="badge-green">❤️ Loyal fan</span></div>
       </div>
     </div>
   </div>
 
   <div class="card">
     <div class="card-title">Sentiment by Video</div>
-    <div class="chart-wrap" style="height: 160px;">
+    <div class="chart-wrap" style="height:160px;">
       <canvas id="sentimentChart"></canvas>
     </div>
   </div>
-
 </div>
 
 <!-- COMPETITORS TAB -->
 <div class="page" id="tab-competitors">
-
-  <div class="card" style="margin-bottom: 20px;">
+  <div class="card" style="margin-bottom:20px;">
     <div class="card-title">Channel Comparison</div>
     <table>
-      <tr>
-        <th>Channel</th>
-        <th>Subscribers</th>
-        <th>Total Videos</th>
-        <th>Focus</th>
-        <th>Threat Level</th>
-      </tr>
-      <tr>
-        <td>One Skill PPT</td>
-        <td>822K</td>
-        <td>300</td>
-        <td>Visual design, animations</td>
-        <td><span class="badge-yellow">Medium</span></td>
-      </tr>
-      <tr>
-        <td>Alexander Lyon</td>
-        <td>767K</td>
-        <td>547</td>
-        <td>Communication coaching</td>
-        <td><span class="badge-yellow">Medium</span></td>
-      </tr>
-      <tr>
-        <td>Firm Learning</td>
-        <td>256K</td>
-        <td>488</td>
-        <td>Consulting career + slides</td>
-        <td><span class="badge-red">High</span></td>
-      </tr>
-      <tr class="you-row">
-        <td>Analyst Academy <span class="you-pill">YOU</span></td>
-        <td>228K</td>
-        <td>104</td>
-        <td>Consulting slides + AI</td>
-        <td>—</td>
-      </tr>
-      <tr>
-        <td>Dan Galletta</td>
-        <td>57K</td>
-        <td>64</td>
-        <td>Consulting communication</td>
-        <td><span class="badge-yellow">Medium</span></td>
-      </tr>
+      <tr><th>Channel</th><th>Subscribers</th><th>Videos</th><th>Focus</th><th>Threat</th></tr>
+      <tr><td>One Skill PPT</td><td>822K</td><td>300</td><td>Visual design, animations</td><td><span class="badge-yellow">Medium</span></td></tr>
+      <tr><td>Alexander Lyon</td><td>767K</td><td>547</td><td>Communication coaching</td><td><span class="badge-yellow">Medium</span></td></tr>
+      <tr><td>Firm Learning</td><td>256K</td><td>488</td><td>Consulting career + slides</td><td><span class="badge-red">High</span></td></tr>
+      <tr class="you-row"><td>Analyst Academy <span class="you-pill">YOU</span></td><td>228K</td><td>104</td><td>Consulting slides + AI</td><td>—</td></tr>
+      <tr><td>Dan Galletta</td><td>57K</td><td>64</td><td>Consulting communication</td><td><span class="badge-yellow">Medium</span></td></tr>
     </table>
   </div>
 
@@ -807,7 +558,7 @@
         <div class="collab-avatar">🎓</div>
         <div class="collab-info">
           <div class="collab-name">Firm Learning</div>
-          <div class="collab-meta">256K subs · Ex-McKinsey · Same audience, complementary angle</div>
+          <div class="collab-meta">256K subs · Ex-McKinsey · Same audience, complementary</div>
         </div>
         <button class="collab-action">Draft outreach →</button>
       </div>
@@ -815,7 +566,7 @@
         <div class="collab-avatar">🎨</div>
         <div class="collab-info">
           <div class="collab-name">Prezlab</div>
-          <div class="collab-meta">Existing sponsor · Already commented on your videos</div>
+          <div class="collab-meta">Existing sponsor · Already commenting on your videos</div>
         </div>
         <button class="collab-action">Existing partner ✓</button>
       </div>
@@ -825,23 +576,22 @@
       <div class="card-title">What Competitors Posted Recently</div>
       <div class="insight-row">
         <div class="insight-icon">📹</div>
-        <div class="insight-body"><strong>Firm Learning</strong> — "Ex-McKinsey Consultant tests Claude for PowerPoint" (Mar 15, 2026) — directly competing with your Claude video</div>
+        <div class="insight-body"><strong>Firm Learning</strong> — "Ex-McKinsey Consultant tests Claude for PowerPoint" (Mar 15, 2026) — directly in your lane</div>
       </div>
       <div class="insight-row">
         <div class="insight-icon">📹</div>
-        <div class="insight-body"><strong>Dan Galletta</strong> — "How to create McKinsey PPT storylines using AI" (Oct 2025) — AI + McKinsey angle, your core niche</div>
+        <div class="insight-body"><strong>Dan Galletta</strong> — "How to create McKinsey PPT storylines using AI" (Oct 2025) — AI + McKinsey, your core niche</div>
       </div>
       <div class="insight-row">
         <div class="insight-icon">📹</div>
-        <div class="insight-body"><strong>Alexander Lyon</strong> — "Top 4 McKinsey Consulting Frameworks Explained" (Oct 2025) — expanding into consulting content</div>
+        <div class="insight-body"><strong>Alexander Lyon</strong> — "Top 4 McKinsey Consulting Frameworks Explained" (Oct 2025) — expanding into consulting</div>
       </div>
       <div class="insight-row">
         <div class="insight-icon">⚠️</div>
-        <div class="insight-body"><strong>Takeaway:</strong> Competitors are accelerating into your niche. Post more frequently to protect your position as the #1 channel.</div>
+        <div class="insight-body"><strong>Takeaway:</strong> Competitors are accelerating into your niche. Consistent posting is the best defense.</div>
       </div>
     </div>
   </div>
-
 </div>
 
 <footer>
@@ -849,23 +599,128 @@
 </footer>
 
 <script>
-  // Tab switching
-  function showTab(name) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    event.target.classList.add('active');
+// ─── Data by period ───────────────────────────────────────────────────────────
+const periodData = {
+  '30d': {
+    viewsLabel: 'Views (30 days)',
+    viewsVal: '~120K',
+    videosLabel: 'Videos (30 days)',
+    videosVal: '1',
+    avgVal: '~120K',
+    periodLabelVideos: 'Last 30 Days',
+    videos: [
+      { rank:1, title: 'Can Claude Make Better Slides than McKinsey?', meta: 'Mar 20, 2026', hot: '🔥 Just released' }
+    ],
+    growthLabels: ['Mar 1', 'Mar 7', 'Mar 14', 'Mar 21', 'Mar 28'],
+    growthData: [225000, 225500, 226000, 227000, 228000]
+  },
+  '90d': {
+    viewsLabel: 'Views (3 months)',
+    viewsVal: '~350K',
+    videosLabel: 'Videos (3 months)',
+    videosVal: '2',
+    avgVal: '~175K',
+    periodLabelVideos: 'Last 3 Months',
+    videos: [
+      { rank:1, title: 'Can Claude Make Better Slides than McKinsey?', meta: 'Mar 20, 2026', hot: '🔥 New' },
+      { rank:2, title: 'The Slide Master Setup That Makes PowerPoint Feel Like Magic', meta: 'Feb 14, 2026' }
+    ],
+    growthLabels: ['Jan', 'Feb', 'Mar'],
+    growthData: [224000, 226000, 228000]
+  },
+  '12m': {
+    viewsLabel: 'Views (12 months)',
+    viewsVal: '~1.2M',
+    videosLabel: 'Videos (12 months)',
+    videosVal: '6',
+    avgVal: '~3.5K subs',
+    periodLabelVideos: 'Last 12 Months',
+    videos: [
+      { rank:1, title: 'I Uploaded 1,000 McKinsey Slides to ChatGPT. Here\'s What I learned.', meta: 'May 2025', hot: '#1 in niche' },
+      { rank:2, title: 'Can Claude Make Better Slides than McKinsey?', meta: 'Mar 2026', hot: '🔥 New' },
+      { rank:3, title: 'How Consulting Firms Make Complex Topics Simple', meta: 'Aug 2025' },
+      { rank:4, title: 'The Slide Master Setup That Makes PowerPoint Feel Like Magic', meta: 'Feb 2026' },
+      { rank:5, title: 'Most Finance Slides are Bad — Here\'s How to Fix Them', meta: 'Apr 2025' },
+      { rank:6, title: 'I uploaded 1,000 McKinsey slides to ChatGPT. Here\'s what happened.', meta: 'Apr 2025' }
+    ],
+    growthLabels: ['Apr', 'Jun', 'Aug', 'Oct', 'Dec', 'Mar'],
+    growthData: [210000, 215000, 220000, 222000, 225000, 228000]
+  },
+  'all': {
+    viewsLabel: 'Total Views',
+    viewsVal: '6.96M',
+    videosLabel: 'Total Videos',
+    videosVal: '104',
+    avgVal: '~67K',
+    periodLabelVideos: 'All Time',
+    videos: [
+      { rank:1, title: 'PowerPoint Storytelling: How McKinsey, Bain and BCG create compelling presentations', meta: 'Nov 2021' },
+      { rank:2, title: 'The 5 Most Popular Consulting Slides (and how to build them)', meta: 'Oct 2023' },
+      { rank:3, title: 'How I redesigned 3 McKinsey slides (and made them better!)', meta: 'Oct 2022' },
+      { rank:4, title: 'I Uploaded 1,000 McKinsey Slides to ChatGPT. Here\'s What I learned.', meta: 'May 2025', hot: '#1 since 2025' },
+      { rank:5, title: 'Data Visualization Crash Course | Consulting Best Practices', meta: 'May 2023' }
+    ],
+    growthLabels: ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+    growthData: [1000, 5000, 20000, 60000, 120000, 180000, 210000, 224000, 228000]
+  }
+};
+
+let currentPeriod = '12m';
+let growthChart = null;
+
+// ─── Tab switching ─────────────────────────────────────────────────────────────
+function showTab(name, event) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (event) event.target.classList.add('active');
+}
+
+// ─── Period switching ──────────────────────────────────────────────────────────
+function setPeriod(period, el) {
+  currentPeriod = period;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  updateDashboard();
+}
+
+function updateDashboard() {
+  const d = periodData[currentPeriod];
+
+  // Stats
+  document.getElementById('views-label').textContent = d.viewsLabel;
+  document.getElementById('views-val').textContent = d.viewsVal;
+  document.getElementById('videos-label').textContent = d.videosLabel;
+  document.getElementById('videos-val').textContent = d.videosVal;
+  document.getElementById('avg-val').textContent = d.avgVal;
+  document.getElementById('period-label-videos').textContent = d.periodLabelVideos;
+
+  // Video list
+  const list = document.getElementById('video-list');
+  if (d.videos.length === 0) {
+    list.innerHTML = '<div class="empty-state">No videos published in this period.</div>';
+  } else {
+    list.innerHTML = d.videos.map(v => `
+      <div class="video-row">
+        <div class="video-num">${v.rank}</div>
+        <div>
+          <div class="video-title">${v.title}${v.hot ? `<span class="video-hot">${v.hot}</span>` : ''}</div>
+          <div class="video-meta">${v.meta}</div>
+        </div>
+      </div>
+    `).join('');
   }
 
   // Growth chart
-  const growthCtx = document.getElementById('growthChart').getContext('2d');
-  new Chart(growthCtx, {
+  if (growthChart) growthChart.destroy();
+  const ctx = document.getElementById('growthChart').getContext('2d');
+  growthChart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Mar 25', 'Jun 25', 'Sep 25', 'Dec 25', 'Mar 26'],
+      labels: d.growthLabels,
       datasets: [{
         label: 'Subscribers',
-        data: [210000, 215000, 220000, 224000, 228000],
+        data: d.growthData,
         borderColor: '#e63329',
         backgroundColor: 'rgba(230,51,41,0.06)',
         borderWidth: 2,
@@ -883,55 +738,43 @@
         x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
         y: {
           grid: { color: '#f0f0ec' },
-          ticks: {
-            font: { size: 11 },
-            color: '#888',
-            callback: v => (v/1000).toFixed(0) + 'K'
-          }
+          ticks: { font: { size: 11 }, color: '#888', callback: v => (v/1000).toFixed(0) + 'K' }
         }
       }
     }
   });
+}
 
-  // Sentiment chart
-  const sentCtx = document.getElementById('sentimentChart').getContext('2d');
-  new Chart(sentCtx, {
-    type: 'bar',
-    data: {
-      labels: ['McKinsey ChatGPT', 'Claude vs McKinsey', 'Consulting Firms', 'Chart Types Ranked', 'ChatGPT 10x Slides'],
-      datasets: [
-        {
-          label: 'Positive',
-          data: [75, 68, 85, 90, 70],
-          backgroundColor: '#bbf7d0',
-          borderRadius: 4
-        },
-        {
-          label: 'Neutral',
-          data: [15, 18, 10, 8, 20],
-          backgroundColor: '#e8e8e3',
-          borderRadius: 4
-        },
-        {
-          label: 'Critical',
-          data: [10, 14, 5, 2, 10],
-          backgroundColor: '#fecaca',
-          borderRadius: 4
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } }
-      },
-      scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
-        y: { stacked: true, grid: { color: '#f0f0ec' }, ticks: { font: { size: 11 }, color: '#888', callback: v => v + '%' } }
-      }
+// ─── Sentiment chart ───────────────────────────────────────────────────────────
+const sentCtx = document.getElementById('sentimentChart').getContext('2d');
+new Chart(sentCtx, {
+  type: 'bar',
+  data: {
+    labels: ['McKinsey ChatGPT', 'Claude vs McKinsey', 'Consulting Firms', 'Chart Types', 'ChatGPT 10x'],
+    datasets: [
+      { label: 'Positive', data: [75,68,85,90,70], backgroundColor: '#bbf7d0', borderRadius: 4 },
+      { label: 'Neutral', data: [15,18,10,8,20], backgroundColor: '#e8e8e3', borderRadius: 4 },
+      { label: 'Critical', data: [10,14,5,2,10], backgroundColor: '#fecaca', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 12 } } },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
+      y: { stacked: true, grid: { color: '#f0f0ec' }, ticks: { font: { size: 11 }, color: '#888', callback: v => v + '%' } }
     }
-  });
+  }
+});
+
+// ─── Goal progress animation ───────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  updateDashboard();
+  setTimeout(() => {
+    document.getElementById('g1-bar').style.width = '45.6%';
+  }, 300);
+});
 </script>
 
 </body>

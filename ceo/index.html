@@ -7,21 +7,22 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f4f5f7; color: #1a1a2e; }
 
     header {
-      background: linear-gradient(135deg, #1a1a2e, #16213e);
-      padding: 20px 40px;
+      background: #fff;
+      padding: 16px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 1px solid #2a2a4a;
+      border-bottom: 1px solid #e5e7eb;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
-    header h1 { font-size: 20px; font-weight: 700; color: #fff; }
-    header h1 span { color: #4ade80; }
+    header h1 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+    header h1 span { color: #16a34a; }
     .header-right { display: flex; align-items: center; gap: 16px; }
-    .last-updated { font-size: 12px; color: #888; }
-    .date-badge { font-size: 13px; font-weight: 600; color: #fff; background: #2a2a4a; padding: 6px 14px; border-radius: 20px; }
+    .last-updated { font-size: 12px; color: #9ca3af; }
+    .date-badge { font-size: 13px; font-weight: 600; color: #1a1a2e; background: #f3f4f6; border: 1px solid #e5e7eb; padding: 5px 14px; border-radius: 20px; }
 
     .container { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
 
@@ -30,7 +31,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 2px;
-      color: #555;
+      color: #9ca3af;
       margin-bottom: 12px;
       margin-top: 32px;
     }
@@ -44,28 +45,29 @@
       margin-bottom: 8px;
     }
     .kpi-card {
-      background: #1a1a2e;
-      border: 1px solid #2a2a4a;
+      background: #fff;
+      border: 1px solid #e5e7eb;
       border-radius: 12px;
       padding: 18px 20px;
       position: relative;
       overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
     .kpi-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 3px;
-      background: var(--accent, #4ade80);
+      background: var(--accent, #16a34a);
       border-radius: 12px 12px 0 0;
     }
-    .kpi-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-    .kpi-value { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; }
-    .kpi-sub { font-size: 12px; color: #888; margin-top: 6px; }
+    .kpi-label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .kpi-value { font-size: 28px; font-weight: 800; color: #111827; line-height: 1; }
+    .kpi-sub { font-size: 12px; color: #9ca3af; margin-top: 6px; }
     .kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
-    .kpi-delta.up { color: #4ade80; }
-    .kpi-delta.down { color: #f87171; }
-    .kpi-delta.neutral { color: #888; }
+    .kpi-delta.up { color: #16a34a; }
+    .kpi-delta.down { color: #dc2626; }
+    .kpi-delta.neutral { color: #9ca3af; }
 
     /* Two column layout */
     .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
@@ -73,65 +75,66 @@
 
     /* Cards */
     .card {
-      background: #1a1a2e;
-      border: 1px solid #2a2a4a;
+      background: #fff;
+      border: 1px solid #e5e7eb;
       border-radius: 12px;
       padding: 20px 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
-    .card-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title { font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
     .card-title .icon { font-size: 16px; }
 
     /* Revenue table */
     .rev-table { width: 100%; border-collapse: collapse; }
-    .rev-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #555; text-align: right; padding: 0 0 10px 0; font-weight: 600; }
+    .rev-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; text-align: right; padding: 0 0 10px 0; font-weight: 600; }
     .rev-table th:first-child { text-align: left; }
-    .rev-table td { padding: 8px 0; font-size: 13px; border-top: 1px solid #1f1f3a; text-align: right; color: #ccc; }
-    .rev-table td:first-child { text-align: left; color: #e0e0e0; }
-    .rev-table tr.total td { font-weight: 700; color: #fff; border-top: 2px solid #3a3a5a; padding-top: 10px; }
-    .rev-table tr.total td:first-child { color: #4ade80; }
-    .rev-table .positive { color: #4ade80 !important; }
-    .rev-table .negative { color: #f87171 !important; }
+    .rev-table td { padding: 8px 0; font-size: 13px; border-top: 1px solid #f3f4f6; text-align: right; color: #4b5563; }
+    .rev-table td:first-child { text-align: left; color: #111827; }
+    .rev-table tr.total td { font-weight: 700; color: #111827; border-top: 2px solid #e5e7eb; padding-top: 10px; }
+    .rev-table tr.total td:first-child { color: #16a34a; }
+    .rev-table .positive { color: #16a34a !important; }
+    .rev-table .negative { color: #dc2626 !important; }
 
     /* Bar chart */
     .chart-wrap { position: relative; height: 180px; }
 
     /* YouTube table */
     .yt-table { width: 100%; border-collapse: collapse; }
-    .yt-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #555; padding: 0 0 10px 0; font-weight: 600; text-align: right; }
+    .yt-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af; padding: 0 0 10px 0; font-weight: 600; text-align: right; }
     .yt-table th:first-child { text-align: left; }
-    .yt-table td { padding: 7px 0; font-size: 12px; border-top: 1px solid #1f1f3a; text-align: right; color: #ccc; vertical-align: middle; }
-    .yt-table td:first-child { text-align: left; color: #e0e0e0; max-width: 200px; }
+    .yt-table td { padding: 7px 0; font-size: 12px; border-top: 1px solid #f3f4f6; text-align: right; color: #4b5563; vertical-align: middle; }
+    .yt-table td:first-child { text-align: left; color: #111827; max-width: 200px; }
     .yt-table .video-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 190px; font-size: 12px; }
-    .velocity-pill { background: #1f2d1f; border: 1px solid #2d4a2d; color: #4ade80; border-radius: 20px; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; }
-    .velocity-pill.hot { background: #2d1f1f; border-color: #4a2d2d; color: #f87171; }
-    .velocity-pill.warm { background: #2d2a1f; border-color: #4a402d; color: #fbbf24; }
+    .velocity-pill { background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a; border-radius: 20px; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .velocity-pill.hot { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
+    .velocity-pill.warm { background: #fffbeb; border-color: #fde68a; color: #d97706; }
 
     /* Goal bars */
     .goal-item { margin-bottom: 16px; }
     .goal-item:last-child { margin-bottom: 0; }
     .goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .goal-name { font-size: 13px; color: #e0e0e0; font-weight: 600; }
-    .goal-pct { font-size: 12px; color: #888; }
-    .goal-bar-bg { background: #0f0f1e; border-radius: 4px; height: 8px; overflow: hidden; }
+    .goal-name { font-size: 13px; color: #111827; font-weight: 600; }
+    .goal-pct { font-size: 12px; color: #9ca3af; }
+    .goal-bar-bg { background: #f3f4f6; border-radius: 4px; height: 8px; overflow: hidden; }
     .goal-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
 
     /* Calendar */
-    .cal-empty { color: #555; font-size: 13px; padding: 12px 0; }
-    .cal-item { padding: 10px 0; border-top: 1px solid #1f1f3a; display: flex; gap: 12px; align-items: flex-start; }
+    .cal-empty { color: #9ca3af; font-size: 13px; padding: 12px 0; }
+    .cal-item { padding: 10px 0; border-top: 1px solid #f3f4f6; display: flex; gap: 12px; align-items: flex-start; }
     .cal-item:first-child { border-top: none; padding-top: 0; }
-    .cal-time { font-size: 11px; color: #888; min-width: 70px; padding-top: 2px; }
-    .cal-title { font-size: 13px; color: #e0e0e0; }
-    .cal-loc { font-size: 11px; color: #555; margin-top: 2px; }
+    .cal-time { font-size: 11px; color: #9ca3af; min-width: 70px; padding-top: 2px; font-weight: 500; }
+    .cal-title { font-size: 13px; color: #111827; font-weight: 500; }
+    .cal-loc { font-size: 11px; color: #9ca3af; margin-top: 2px; }
 
     /* Snapshot info */
-    .snapshot-meta { font-size: 11px; color: #555; margin-top: 8px; }
+    .snapshot-meta { font-size: 11px; color: #9ca3af; margin-top: 8px; }
 
     /* Alert banner */
-    .alert { background: #1f2a1f; border: 1px solid #2d4a2d; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #4ade80; display: flex; align-items: center; gap: 10px; }
-    .alert.warn { background: #2a251f; border-color: #4a3d2d; color: #fbbf24; }
-    .alert.info { background: #1f1f2a; border-color: #2d2d4a; color: #818cf8; }
+    .alert { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: #15803d; display: flex; align-items: flex-start; gap: 10px; }
+    .alert.warn { background: #fffbeb; border-color: #fde68a; color: #b45309; }
+    .alert.info { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
 
-    footer { text-align: center; padding: 28px; font-size: 11px; color: #444; border-top: 1px solid #1a1a2e; margin-top: 32px; }
+    footer { text-align: center; padding: 28px; font-size: 11px; color: #9ca3af; border-top: 1px solid #e5e7eb; margin-top: 32px; background: #fff; }
   </style>
 </head>
 <body>
@@ -351,7 +354,7 @@
           <div class="goal-pct">228K / 500K · 45.6%</div>
         </div>
         <div class="goal-bar-bg">
-          <div class="goal-bar-fill" style="width: 45.6%; background: linear-gradient(90deg, #4ade80, #22c55e);"></div>
+          <div class="goal-bar-fill" style="width: 45.6%; background: linear-gradient(90deg, #16a34a, #22c55e);"></div>
         </div>
       </div>
       <div class="goal-item" style="margin-top: 24px;">
@@ -419,16 +422,16 @@
         {
           label: 'Revenue',
           data: [67912, 64689, 40458],
-          backgroundColor: '#818cf8cc',
-          borderColor: '#818cf8',
+          backgroundColor: '#6366f1cc',
+          borderColor: '#6366f1',
           borderWidth: 1,
           borderRadius: 4,
         },
         {
           label: 'Net Income',
           data: [38298, 51266, 22370],
-          backgroundColor: '#4ade80cc',
-          borderColor: '#4ade80',
+          backgroundColor: '#16a34acc',
+          borderColor: '#16a34a',
           borderWidth: 1,
           borderRadius: 4,
         }
@@ -438,7 +441,7 @@
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { labels: { color: '#888', font: { size: 11 } } },
+        legend: { labels: { color: '#6b7280', font: { size: 11 } } },
         tooltip: {
           callbacks: {
             label: (ctx) => ` $${ctx.raw.toLocaleString()}`
@@ -446,13 +449,13 @@
         }
       },
       scales: {
-        x: { ticks: { color: '#666', font: { size: 11 } }, grid: { color: '#1f1f3a' } },
+        x: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { color: '#f3f4f6' } },
         y: {
           ticks: {
-            color: '#666', font: { size: 10 },
+            color: '#9ca3af', font: { size: 10 },
             callback: v => '$' + (Math.abs(v) >= 1000 ? (v/1000).toFixed(0) + 'K' : v)
           },
-          grid: { color: '#1f1f3a' }
+          grid: { color: '#f3f4f6' }
         }
       }
     }
@@ -560,10 +563,10 @@
       for (const [date, events] of Object.entries(grouped)) {
         const label = date === todayStr ? 'Today' : 'Tomorrow';
         if (events.length === 0) {
-          html += `<div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin:${label==='Today'?'0':'14px'} 0 8px">${label}</div>`;
+          html += `<div style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:${label==='Today'?'0':'16px'} 0 8px">${label}</div>`;
           html += `<div class="cal-empty" style="padding:6px 0">No events</div>`;
         } else {
-          html += `<div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin:${label==='Today'?'0':'14px'} 0 8px">${label}</div>`;
+          html += `<div style="font-size:11px;color:#9ca3af;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin:${label==='Today'?'0':'16px'} 0 8px">${label}</div>`;
           for (const ev of events) {
             const startTime = ev.start ? new Date(ev.start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }) : '';
             const endTime = ev.end ? new Date(ev.end).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }) : '';

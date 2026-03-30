@@ -466,11 +466,36 @@
       if (snapshots.length < 2) return;
 
       const latest = snapshots[snapshots.length - 1];
-      const prev = snapshots[snapshots.length - 2];
-
       const latestTs = new Date(latest.ts);
-      const prevTs = new Date(prev.ts);
-      const hoursDiff = (latestTs - prevTs) / 3600000;
+
+      // Find best comparison snapshot: closest one that's between 30min and 4hrs ago
+      // This avoids gaps (e.g. gateway restarts) distorting velocity
+      let best = null;
+      for (let i = snapshots.length - 2; i >= 0; i--) {
+        const ts = new Date(snapshots[i].ts);
+        const hoursAgo = (latestTs - ts) / 3600000;
+        if (hoursAgo >= 0.5 && hoursAgo <= 4) {
+          best = snapshots[i];
+          break;
+        }
+      }
+
+      // If no snapshot in ideal window, fall back to closest within 12 hours
+      if (!best) {
+        for (let i = snapshots.length - 2; i >= 0; i--) {
+          const ts = new Date(snapshots[i].ts);
+          const hoursAgo = (latestTs - ts) / 3600000;
+          if (hoursAgo <= 12) {
+            best = snapshots[i];
+            break;
+          }
+        }
+      }
+
+      if (!best) return;
+
+      const hoursDiff = (latestTs - new Date(best.ts)) / 3600000;
+      const windowLabel = hoursDiff < 1.5 ? '1hr' : Math.round(hoursDiff) + 'hr avg';
 
       const videoIds = ['HnlWiVs9P5o', 'RfEOrbbMwMU', '5zw5HWXGFAE', 'j9NZz6Re-88', 'ZUeWXNK-9yA', 'cAORw6XkjS4', '-Ab-HYN0WUo'];
 
@@ -478,17 +503,26 @@
         const el = document.getElementById('vel-' + id);
         if (!el) return;
         const curr = latest.views[id];
-        const old = prev.views[id];
+        const old = best.views[id];
         if (curr == null || old == null || hoursDiff <= 0) return;
         const vph = Math.round((curr - old) / hoursDiff);
         el.textContent = (vph >= 0 ? '+' : '') + vph.toLocaleString() + '/hr';
         el.className = 'velocity-pill' + (vph >= 100 ? ' hot' : vph >= 30 ? ' warm' : '');
+        el.title = `Based on ${windowLabel} window`;
       });
 
       // Update latest video views
       const latestEl = document.getElementById('views-latest');
       if (latestEl && latest.views['-Ab-HYN0WUo']) {
         latestEl.textContent = latest.views['-Ab-HYN0WUo'].toLocaleString();
+      }
+
+      // Show snapshot freshness
+      const metaEl = document.querySelector('.snapshot-meta');
+      if (metaEl) {
+        const minsAgo = Math.round((Date.now() - latestTs) / 60000);
+        const freshnessColor = minsAgo < 90 ? '#4ade80' : minsAgo < 180 ? '#fbbf24' : '#f87171';
+        metaEl.innerHTML = `Velocity window: ${windowLabel} · Last snapshot <span style="color:${freshnessColor}">${minsAgo}m ago</span>`;
       }
     } catch(e) {
       console.log('Snapshot load failed:', e);

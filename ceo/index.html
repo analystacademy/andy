@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyst Academy — CEO Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f0f; color: #e0e0e0; }
+
+    header {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      padding: 20px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #2a2a4a;
+    }
+    header h1 { font-size: 20px; font-weight: 700; color: #fff; }
+    header h1 span { color: #4ade80; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .last-updated { font-size: 12px; color: #888; }
+    .date-badge { font-size: 13px; font-weight: 600; color: #fff; background: #2a2a4a; padding: 6px 14px; border-radius: 20px; }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #555;
+      margin-bottom: 12px;
+      margin-top: 32px;
+    }
+    .section-label:first-child { margin-top: 0; }
+
+    /* KPI Row */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-bottom: 8px;
+    }
+    .kpi-card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent, #4ade80);
+      border-radius: 12px 12px 0 0;
+    }
+    .kpi-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+    .kpi-value { font-size: 28px; font-weight: 800; color: #fff; line-height: 1; }
+    .kpi-sub { font-size: 12px; color: #888; margin-top: 6px; }
+    .kpi-delta { font-size: 12px; font-weight: 600; margin-top: 4px; }
+    .kpi-delta.up { color: #4ade80; }
+    .kpi-delta.down { color: #f87171; }
+    .kpi-delta.neutral { color: #888; }
+
+    /* Two column layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+
+    /* Cards */
+    .card {
+      background: #1a1a2e;
+      border: 1px solid #2a2a4a;
+      border-radius: 12px;
+      padding: 20px 24px;
+    }
+    .card-title { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title .icon { font-size: 16px; }
+
+    /* Revenue table */
+    .rev-table { width: 100%; border-collapse: collapse; }
+    .rev-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #555; text-align: right; padding: 0 0 10px 0; font-weight: 600; }
+    .rev-table th:first-child { text-align: left; }
+    .rev-table td { padding: 8px 0; font-size: 13px; border-top: 1px solid #1f1f3a; text-align: right; color: #ccc; }
+    .rev-table td:first-child { text-align: left; color: #e0e0e0; }
+    .rev-table tr.total td { font-weight: 700; color: #fff; border-top: 2px solid #3a3a5a; padding-top: 10px; }
+    .rev-table tr.total td:first-child { color: #4ade80; }
+    .rev-table .positive { color: #4ade80 !important; }
+    .rev-table .negative { color: #f87171 !important; }
+
+    /* Bar chart */
+    .chart-wrap { position: relative; height: 180px; }
+
+    /* YouTube table */
+    .yt-table { width: 100%; border-collapse: collapse; }
+    .yt-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #555; padding: 0 0 10px 0; font-weight: 600; text-align: right; }
+    .yt-table th:first-child { text-align: left; }
+    .yt-table td { padding: 7px 0; font-size: 12px; border-top: 1px solid #1f1f3a; text-align: right; color: #ccc; vertical-align: middle; }
+    .yt-table td:first-child { text-align: left; color: #e0e0e0; max-width: 200px; }
+    .yt-table .video-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 190px; font-size: 12px; }
+    .velocity-pill { background: #1f2d1f; border: 1px solid #2d4a2d; color: #4ade80; border-radius: 20px; padding: 2px 8px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .velocity-pill.hot { background: #2d1f1f; border-color: #4a2d2d; color: #f87171; }
+    .velocity-pill.warm { background: #2d2a1f; border-color: #4a402d; color: #fbbf24; }
+
+    /* Goal bars */
+    .goal-item { margin-bottom: 16px; }
+    .goal-item:last-child { margin-bottom: 0; }
+    .goal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .goal-name { font-size: 13px; color: #e0e0e0; font-weight: 600; }
+    .goal-pct { font-size: 12px; color: #888; }
+    .goal-bar-bg { background: #0f0f1e; border-radius: 4px; height: 8px; overflow: hidden; }
+    .goal-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+
+    /* Calendar */
+    .cal-empty { color: #555; font-size: 13px; padding: 12px 0; }
+    .cal-item { padding: 10px 0; border-top: 1px solid #1f1f3a; display: flex; gap: 12px; align-items: flex-start; }
+    .cal-item:first-child { border-top: none; padding-top: 0; }
+    .cal-time { font-size: 11px; color: #888; min-width: 70px; padding-top: 2px; }
+    .cal-title { font-size: 13px; color: #e0e0e0; }
+    .cal-loc { font-size: 11px; color: #555; margin-top: 2px; }
+
+    /* Snapshot info */
+    .snapshot-meta { font-size: 11px; color: #555; margin-top: 8px; }
+
+    /* Alert banner */
+    .alert { background: #1f2a1f; border: 1px solid #2d4a2d; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #4ade80; display: flex; align-items: center; gap: 10px; }
+    .alert.warn { background: #2a251f; border-color: #4a3d2d; color: #fbbf24; }
+    .alert.info { background: #1f1f2a; border-color: #2d2d4a; color: #818cf8; }
+
+    footer { text-align: center; padding: 28px; font-size: 11px; color: #444; border-top: 1px solid #1a1a2e; margin-top: 32px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Analyst Academy <span>CEO Dashboard</span></h1>
+  <div class="header-right">
+    <div class="date-badge" id="todayDate">—</div>
+    <div class="last-updated">Updated <span id="lastUpdated">—</span></div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- REVENUE -->
+  <div class="section-label">💰 Revenue — Q1 2026</div>
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--accent: #4ade80;">
+      <div class="kpi-label">March MTD</div>
+      <div class="kpi-value">$129,674</div>
+      <div class="kpi-sub">Revenue</div>
+      <div class="kpi-delta down">↓ vs $195,617 in Feb</div>
+    </div>
+    <div class="kpi-card" style="--accent: #4ade80;">
+      <div class="kpi-label">March Net Profit</div>
+      <div class="kpi-value">$78,542</div>
+      <div class="kpi-sub">After expenses</div>
+      <div class="kpi-delta up">↑ vs –$59,287 in Feb</div>
+    </div>
+    <div class="kpi-card" style="--accent: #818cf8;">
+      <div class="kpi-label">Live Trainings</div>
+      <div class="kpi-value">$78,600</div>
+      <div class="kpi-sub">March</div>
+      <div class="kpi-delta neutral">Largest revenue line</div>
+    </div>
+    <div class="kpi-card" style="--accent: #818cf8;">
+      <div class="kpi-label">Course Sales B2C</div>
+      <div class="kpi-value">$26,238</div>
+      <div class="kpi-sub">March</div>
+      <div class="kpi-delta down">↓ vs $60,667 in Feb</div>
+    </div>
+    <div class="kpi-card" style="--accent: #f59e0b;">
+      <div class="kpi-label">SlideStart</div>
+      <div class="kpi-value">$9,502</div>
+      <div class="kpi-sub">March platform revenue</div>
+      <div class="kpi-delta down">↓ vs $17,194 in Feb</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title"><span class="icon">📊</span> Revenue by Stream — Last 3 Months</div>
+      <table class="rev-table">
+        <thead>
+          <tr>
+            <th>Stream</th>
+            <th>Jan</th>
+            <th>Feb</th>
+            <th>Mar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Live Trainings</td>
+            <td>$105,000</td>
+            <td>$98,600</td>
+            <td>$78,600</td>
+          </tr>
+          <tr>
+            <td>Course Sales (B2C)</td>
+            <td>$66,753</td>
+            <td>$60,667</td>
+            <td>$26,238</td>
+          </tr>
+          <tr>
+            <td>Course Sales (B2B)</td>
+            <td>$14,424</td>
+            <td>$17,984</td>
+            <td>$14,548</td>
+          </tr>
+          <tr>
+            <td>SlideStart</td>
+            <td>$18,910</td>
+            <td>$17,194</td>
+            <td>$9,502</td>
+          </tr>
+          <tr>
+            <td>Ad Revenue</td>
+            <td>$1,181</td>
+            <td>$938</td>
+            <td>$492</td>
+          </tr>
+          <tr>
+            <td>Platform Sales</td>
+            <td>$3,409</td>
+            <td>$2,793</td>
+            <td>$1,270</td>
+          </tr>
+          <tr>
+            <td class="negative">Refunds</td>
+            <td class="negative">–$2,250</td>
+            <td class="negative">–$3,093</td>
+            <td class="negative">–$975</td>
+          </tr>
+          <tr class="total">
+            <td>Total Revenue</td>
+            <td>$207,960</td>
+            <td>$195,617</td>
+            <td>$129,674</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="snapshot-meta">⚠️ March is MTD (incomplete month) — not comparable to Jan/Feb totals</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">📈</span> Revenue vs Net Profit</div>
+      <div class="chart-wrap">
+        <canvas id="revChart"></canvas>
+      </div>
+      <div class="snapshot-meta">Jan–Feb full month · March MTD</div>
+    </div>
+  </div>
+
+  <!-- YOUTUBE -->
+  <div class="section-label">📺 YouTube — @analystacademy</div>
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--accent: #ef4444;">
+      <div class="kpi-label">Subscribers</div>
+      <div class="kpi-value">228K</div>
+      <div class="kpi-sub">Total</div>
+      <div class="kpi-delta neutral">Goal: 500K</div>
+    </div>
+    <div class="kpi-card" style="--accent: #ef4444;">
+      <div class="kpi-label">Total Views</div>
+      <div class="kpi-value">6.97M</div>
+      <div class="kpi-sub">All time</div>
+      <div class="kpi-delta up">↑ 17K since Mar 28</div>
+    </div>
+    <div class="kpi-card" style="--accent: #ef4444;">
+      <div class="kpi-label">Videos</div>
+      <div class="kpi-value">104</div>
+      <div class="kpi-sub">Published</div>
+      <div class="kpi-delta neutral">Since May 2018</div>
+    </div>
+    <div class="kpi-card" style="--accent: #ef4444;">
+      <div class="kpi-label">Last 12 Months</div>
+      <div class="kpi-value">6</div>
+      <div class="kpi-sub">Videos published</div>
+      <div class="kpi-delta down">⚠️ Low cadence</div>
+    </div>
+    <div class="kpi-card" style="--accent: #ef4444;">
+      <div class="kpi-label">Latest Video</div>
+      <div class="kpi-value" style="font-size: 14px; line-height: 1.3;">Claude vs McKinsey</div>
+      <div class="kpi-sub">Mar 20, 2026</div>
+      <div class="kpi-delta neutral">10 days ago</div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title"><span class="icon">🎬</span> Top Videos — Views/Hour Velocity</div>
+      <table class="yt-table">
+        <thead>
+          <tr>
+            <th>Video</th>
+            <th>Total Views</th>
+            <th>Velocity</th>
+          </tr>
+        </thead>
+        <tbody id="ytTableBody">
+          <tr>
+            <td><span class="video-title">PowerPoint Storytelling: McKinsey, Bain and BCG</span></td>
+            <td>1,197,395</td>
+            <td><span class="velocity-pill" id="vel-HnlWiVs9P5o">—</span></td>
+          </tr>
+          <tr>
+            <td><span class="video-title">The 5 Most Popular Consulting Slides</span></td>
+            <td>725,530</td>
+            <td><span class="velocity-pill" id="vel-RfEOrbbMwMU">—</span></td>
+          </tr>
+          <tr>
+            <td><span class="video-title">How I redesigned 3 McKinsey slides</span></td>
+            <td>432,835</td>
+            <td><span class="velocity-pill" id="vel-5zw5HWXGFAE">—</span></td>
+          </tr>
+          <tr>
+            <td><span class="video-title">I Uploaded 1,000 McKinsey Slides to ChatGPT</span></td>
+            <td>289,802</td>
+            <td><span class="velocity-pill" id="vel-j9NZz6Re-88">—</span></td>
+          </tr>
+          <tr>
+            <td><span class="video-title">Data Visualization Crash Course</span></td>
+            <td>251,541</td>
+            <td><span class="velocity-pill" id="vel-ZUeWXNK-9yA">—</span></td>
+          </tr>
+          <tr>
+            <td><span class="video-title">Build your own McKinsey Style Presentation</span></td>
+            <td>215,971</td>
+            <td><span class="velocity-pill" id="vel-cAORw6XkjS4">—</span></td>
+          </tr>
+          <tr>
+            <td><span class="video-title">Can Claude Make Better Slides than McKinsey?</span></td>
+            <td id="views-latest">—</td>
+            <td><span class="velocity-pill" id="vel--Ab-HYN0WUo">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="snapshot-meta">Velocity calculated from hourly snapshots · Updates every hour</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">🎯</span> Subscriber Goals</div>
+      <div class="goal-item">
+        <div class="goal-header">
+          <div class="goal-name">500K Subscribers</div>
+          <div class="goal-pct">228K / 500K · 45.6%</div>
+        </div>
+        <div class="goal-bar-bg">
+          <div class="goal-bar-fill" style="width: 45.6%; background: linear-gradient(90deg, #4ade80, #22c55e);"></div>
+        </div>
+      </div>
+      <div class="goal-item" style="margin-top: 24px;">
+        <div class="goal-header">
+          <div class="goal-name">1M Subscribers</div>
+          <div class="goal-pct">228K / 1M · 22.8%</div>
+        </div>
+        <div class="goal-bar-bg">
+          <div class="goal-bar-fill" style="width: 22.8%; background: linear-gradient(90deg, #818cf8, #6366f1);"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 28px;">
+        <div class="card-title" style="margin-bottom: 12px;"><span class="icon">⚡</span> Growth Projection</div>
+        <table class="rev-table">
+          <thead>
+            <tr><th>Posting cadence</th><th>Time to 500K</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Current (6/yr)</td><td>~2.5 years</td></tr>
+            <tr><td>2× per month</td><td>&lt;1 year</td></tr>
+            <tr><td>Weekly</td><td>~6 months</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODAY -->
+  <div class="section-label">📅 Today</div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-title"><span class="icon">🗓</span> Calendar — Today</div>
+      <div class="cal-empty">No events found for today</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="icon">💡</span> Andy's Attention Items</div>
+      <div class="alert warn">⚠️ March B2C course sales ($26K) are significantly below Jan/Feb avg (~$64K). Is this a pipeline issue or a timing/seasonal pattern?</div>
+      <div class="alert warn">⚠️ SlideStart revenue dropped ~45% from Jan to March. Worth investigating.</div>
+      <div class="alert info">📺 Latest video (Claude vs McKinsey, Mar 20) — velocity tracking now live. Check back for views/hour data.</div>
+      <div class="alert" style="background:#1f1f2a; border-color:#2d2d4a; color:#818cf8;">📊 Hourly YouTube snapshots running. 29 data points collected so far.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Analyst Academy CEO Dashboard · Built by Andy (AI) · Data: Xero + YouTube API · Updated daily
+</footer>
+
+<script>
+  // Date display
+  const now = new Date();
+  document.getElementById('todayDate').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'America/Chicago' });
+  document.getElementById('lastUpdated').textContent = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago', timeZoneName: 'short' });
+
+  // Revenue chart
+  const ctx = document.getElementById('revChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['January', 'February', 'March MTD'],
+      datasets: [
+        {
+          label: 'Revenue',
+          data: [207960, 195617, 129674],
+          backgroundColor: '#818cf8cc',
+          borderColor: '#818cf8',
+          borderWidth: 1,
+          borderRadius: 4,
+        },
+        {
+          label: 'Net Profit / (Loss)',
+          data: [-54077, -59287, 78542],
+          backgroundColor: (ctx) => ctx.raw >= 0 ? '#4ade80cc' : '#f87171cc',
+          borderColor: (ctx) => ctx.raw >= 0 ? '#4ade80' : '#f87171',
+          borderWidth: 1,
+          borderRadius: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#888', font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` $${ctx.raw.toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        x: { ticks: { color: '#666', font: { size: 11 } }, grid: { color: '#1f1f3a' } },
+        y: {
+          ticks: {
+            color: '#666', font: { size: 10 },
+            callback: v => '$' + (Math.abs(v) >= 1000 ? (v/1000).toFixed(0) + 'K' : v)
+          },
+          grid: { color: '#1f1f3a' }
+        }
+      }
+    }
+  });
+
+  // Load snapshots and calculate velocity
+  async function loadVelocity() {
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/analystacademy/andy/main/data/snapshots.json?t=' + Date.now());
+      const snapshots = await res.json();
+      if (snapshots.length < 2) return;
+
+      const latest = snapshots[snapshots.length - 1];
+      const prev = snapshots[snapshots.length - 2];
+
+      const latestTs = new Date(latest.ts);
+      const prevTs = new Date(prev.ts);
+      const hoursDiff = (latestTs - prevTs) / 3600000;
+
+      const videoIds = ['HnlWiVs9P5o', 'RfEOrbbMwMU', '5zw5HWXGFAE', 'j9NZz6Re-88', 'ZUeWXNK-9yA', 'cAORw6XkjS4', '-Ab-HYN0WUo'];
+
+      videoIds.forEach(id => {
+        const el = document.getElementById('vel-' + id);
+        if (!el) return;
+        const curr = latest.views[id];
+        const old = prev.views[id];
+        if (curr == null || old == null || hoursDiff <= 0) return;
+        const vph = Math.round((curr - old) / hoursDiff);
+        el.textContent = (vph >= 0 ? '+' : '') + vph.toLocaleString() + '/hr';
+        el.className = 'velocity-pill' + (vph >= 100 ? ' hot' : vph >= 30 ? ' warm' : '');
+      });
+
+      // Update latest video views
+      const latestEl = document.getElementById('views-latest');
+      if (latestEl && latest.views['-Ab-HYN0WUo']) {
+        latestEl.textContent = latest.views['-Ab-HYN0WUo'].toLocaleString();
+      }
+    } catch(e) {
+      console.log('Snapshot load failed:', e);
+    }
+  }
+
+  loadVelocity();
+</script>
+
+</body>
+</html>

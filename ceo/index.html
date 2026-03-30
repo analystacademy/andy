@@ -150,19 +150,13 @@
 <div class="container">
 
   <!-- REVENUE -->
-  <div class="section-label">💰 Revenue — 2026</div>
+  <div class="section-label">💰 Business at a Glance</div>
   <div class="kpi-grid">
     <div class="kpi-card" style="--accent: #16a34a;">
       <div class="kpi-label">March Revenue</div>
       <div class="kpi-value">$40,458</div>
       <div class="kpi-sub">vs $75,154 Mar 2025</div>
       <div class="kpi-delta down">↓ 46% YoY</div>
-    </div>
-    <div class="kpi-card" style="--accent: #16a34a;">
-      <div class="kpi-label">March Net Income</div>
-      <div class="kpi-value">$22,370</div>
-      <div class="kpi-sub">55.3% margin</div>
-      <div class="kpi-delta neutral">Mar 2025 data unavailable</div>
     </div>
     <div class="kpi-card" style="--accent: #6366f1;">
       <div class="kpi-label">YTD Revenue</div>
@@ -171,31 +165,35 @@
       <div class="kpi-delta up">↑ 5.3% YoY</div>
     </div>
     <div class="kpi-card" style="--accent: #6366f1;">
-      <div class="kpi-label">Run Rate (2026)</div>
+      <div class="kpi-label">Revenue Run Rate</div>
       <div class="kpi-value">$692K</div>
-      <div class="kpi-sub">At current pace · annualized</div>
-      <div class="kpi-delta neutral">vs $657K 2025 pace</div>
+      <div class="kpi-sub">Annualized at current pace</div>
+      <div class="kpi-delta up">↑ vs $657K in 2025</div>
     </div>
-    <div class="kpi-card" style="--accent: #f59e0b;">
-      <div class="kpi-label">Cash on Hand</div>
-      <div class="kpi-value">$38,590</div>
-      <div class="kpi-sub">Checking + Savings + Airwallex + PayPal</div>
-      <div class="kpi-delta neutral">As of Mar 30, 2026</div>
+    <div class="kpi-card" style="--accent: #ef4444;">
+      <div class="kpi-label">YouTube Subscribers</div>
+      <div class="kpi-value" id="kpi-subs">228K</div>
+      <div class="kpi-sub" id="kpi-subs-sub">Goal: 500K</div>
+      <div class="kpi-delta neutral" id="kpi-subs-delta">Loading trend...</div>
+    </div>
+    <div class="kpi-card" style="--accent: #ef4444;">
+      <div class="kpi-label">Subscriber Run Rate</div>
+      <div class="kpi-value" id="kpi-subs-rr">—</div>
+      <div class="kpi-sub" id="kpi-subs-rr-sub">New subs/month</div>
+      <div class="kpi-delta neutral" id="kpi-subs-rr-delta">Calculating...</div>
     </div>
   </div>
 
   <div class="two-col">
     <div class="card">
-      <div class="card-title"><span class="icon">📊</span> Revenue by Stream — Q1 2026 vs Q1 2025</div>
+      <div class="card-title"><span class="icon">📊</span> Revenue by Stream — 2026</div>
       <table class="rev-table">
         <thead>
           <tr>
             <th>Stream</th>
-            <th>Jan 26</th>
-            <th>Feb 26</th>
-            <th>Mar 26</th>
-            <th>Q1 26</th>
-            <th>Q1 25</th>
+            <th>Jan 2026</th>
+            <th>Feb 2026</th>
+            <th>Mar 2026</th>
           </tr>
         </thead>
         <tbody>
@@ -204,56 +202,42 @@
             <td>$45,000</td>
             <td>$33,600</td>
             <td>—</td>
-            <td>$78,600</td>
-            <td>—</td>
           </tr>
           <tr>
             <td>Course Sales (B2C)</td>
             <td>$10,918</td>
             <td>$14,870</td>
             <td>$18,353</td>
-            <td>$44,141</td>
-            <td>—</td>
           </tr>
           <tr>
             <td>Course Sales (B2B)</td>
             <td>$5,499</td>
             <td>$9,049</td>
             <td>$6,219</td>
-            <td>$20,767</td>
-            <td>—</td>
           </tr>
           <tr>
             <td>SlideStart</td>
             <td>$5,220</td>
             <td>$4,282</td>
             <td>$12,241</td>
-            <td>$21,743</td>
-            <td>—</td>
           </tr>
           <tr>
             <td>Ad Revenue</td>
             <td>$254</td>
             <td>$238</td>
             <td>$3,617</td>
-            <td>$4,109</td>
-            <td>—</td>
           </tr>
           <tr>
             <td class="negative">Refunds</td>
             <td class="negative">–$72</td>
             <td class="negative">–$903</td>
             <td class="negative">–$497</td>
-            <td class="negative">–$1,472</td>
-            <td>—</td>
           </tr>
           <tr class="total">
             <td>Total Revenue</td>
             <td>$67,912</td>
             <td>$64,689</td>
             <td>$40,458</td>
-            <td>$173,059</td>
-            <td>$164,381</td>
           </tr>
         </tbody>
       </table>
@@ -476,8 +460,39 @@
       const metaEl = document.querySelector('.snapshot-meta');
       if (metaEl) {
         const minsAgo = Math.round((Date.now() - latestTs) / 60000);
-        const freshnessColor = minsAgo < 90 ? '#4ade80' : minsAgo < 180 ? '#fbbf24' : '#f87171';
+        const freshnessColor = minsAgo < 90 ? '#16a34a' : minsAgo < 180 ? '#d97706' : '#dc2626';
         metaEl.innerHTML = `Velocity window: ${windowLabel} · Last snapshot <span style="color:${freshnessColor}">${minsAgo}m ago</span>`;
+      }
+
+      // Subscriber run rate — find snapshots with sub data, calc monthly growth
+      const withSubs = snapshots.filter(s => s.subscribers != null);
+      if (withSubs.length >= 2) {
+        const newest = withSubs[withSubs.length - 1];
+        const oldest = withSubs[0];
+        const subDiff = newest.subscribers - oldest.subscribers;
+        const daysDiff = (new Date(newest.ts) - new Date(oldest.ts)) / 86400000;
+        const monthlyRate = daysDiff > 0 ? Math.round(subDiff / daysDiff * 30) : 0;
+        const annualRate = monthlyRate * 12;
+        const monthsTo500K = monthlyRate > 0 ? Math.round((500000 - newest.subscribers) / monthlyRate) : null;
+
+        document.getElementById('kpi-subs').textContent = (newest.subscribers / 1000).toFixed(1) + 'K';
+        document.getElementById('kpi-subs-sub').textContent = `Goal: 500K · ${withSubs.length} data points`;
+        document.getElementById('kpi-subs-delta').textContent = subDiff >= 0 ? `+${subDiff.toLocaleString()} in ${Math.round(daysDiff)}d` : `${subDiff.toLocaleString()} in ${Math.round(daysDiff)}d`;
+        document.getElementById('kpi-subs-delta').className = 'kpi-delta ' + (subDiff >= 0 ? 'up' : 'down');
+
+        document.getElementById('kpi-subs-rr').textContent = monthlyRate > 0 ? '+' + monthlyRate.toLocaleString() + '/mo' : '—';
+        document.getElementById('kpi-subs-rr-sub').textContent = annualRate > 0 ? `~${(annualRate/1000).toFixed(1)}K/year · ${Math.round(daysDiff)}d sample` : 'Accumulating data...';
+        if (monthsTo500K) {
+          const yrs = Math.floor(monthsTo500K / 12);
+          const mos = monthsTo500K % 12;
+          document.getElementById('kpi-subs-rr-delta').textContent = `500K in ${yrs > 0 ? yrs + 'y ' : ''}${mos}mo at this rate`;
+          document.getElementById('kpi-subs-rr-delta').className = 'kpi-delta ' + (monthsTo500K < 12 ? 'up' : monthsTo500K < 24 ? 'neutral' : 'down');
+        }
+      } else if (withSubs.length === 1) {
+        document.getElementById('kpi-subs').textContent = (withSubs[0].subscribers / 1000).toFixed(1) + 'K';
+        document.getElementById('kpi-subs-rr').textContent = '—';
+        document.getElementById('kpi-subs-rr-sub').textContent = 'Accumulating data...';
+        document.getElementById('kpi-subs-rr-delta').textContent = 'Need 2+ days of data';
       }
     } catch(e) {
       console.log('Snapshot load failed:', e);

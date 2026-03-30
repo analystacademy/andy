@@ -384,8 +384,8 @@
   <div class="section-label">📅 Today</div>
   <div class="two-col">
     <div class="card">
-      <div class="card-title"><span class="icon">🗓</span> Calendar — Today</div>
-      <div class="cal-empty">No events found for today</div>
+      <div class="card-title"><span class="icon">🗓</span> Calendar — Today &amp; Tomorrow</div>
+      <div id="calendarBody"><div class="cal-empty">Loading...</div></div>
     </div>
 
     <div class="card">
@@ -530,6 +530,62 @@
   }
 
   loadVelocity();
+
+  // Load calendar
+  async function loadCalendar() {
+    const el = document.getElementById('calendarBody');
+    if (!el) return;
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/analystacademy/andy/main/data/calendar.json?t=' + Date.now());
+      const cal = await res.json();
+
+      if (!cal.events || cal.events.length === 0) {
+        el.innerHTML = '<div class="cal-empty">No events today or tomorrow</div>';
+        return;
+      }
+
+      // Split into today / tomorrow using CT timezone
+      const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' }); // YYYY-MM-DD
+      const tomorrowDate = new Date();
+      tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+      const tomorrowStr = tomorrowDate.toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
+
+      const grouped = { [todayStr]: [], [tomorrowStr]: [] };
+      for (const ev of cal.events) {
+        const evDate = (ev.start || '').slice(0, 10);
+        if (grouped[evDate] !== undefined) grouped[evDate].push(ev);
+      }
+
+      let html = '';
+      for (const [date, events] of Object.entries(grouped)) {
+        const label = date === todayStr ? 'Today' : 'Tomorrow';
+        if (events.length === 0) {
+          html += `<div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin:${label==='Today'?'0':'14px'} 0 8px">${label}</div>`;
+          html += `<div class="cal-empty" style="padding:6px 0">No events</div>`;
+        } else {
+          html += `<div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin:${label==='Today'?'0':'14px'} 0 8px">${label}</div>`;
+          for (const ev of events) {
+            const startTime = ev.start ? new Date(ev.start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }) : '';
+            const endTime = ev.end ? new Date(ev.end).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }) : '';
+            html += `<div class="cal-item">
+              <div class="cal-time">${startTime}${endTime ? '–' + endTime : ''}</div>
+              <div>
+                <div class="cal-title">${ev.title}</div>
+                ${ev.location ? `<div class="cal-loc">📍 ${ev.location}</div>` : ''}
+              </div>
+            </div>`;
+          }
+        }
+      }
+
+      el.innerHTML = html;
+    } catch(e) {
+      el.innerHTML = '<div class="cal-empty">Calendar unavailable</div>';
+      console.log('Calendar load failed:', e);
+    }
+  }
+
+  loadCalendar();
 </script>
 
 </body>

@@ -1,0 +1,2310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analyst Academy — Strategic Intelligence Dashboard</title>
+<style>
+  :root {
+    --primary: #1a2b4a;
+    --accent: #2563eb;
+    --accent2: #10b981;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --light: #f1f5f9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  
+  /* HEADER */
+  .header { background: linear-gradient(135deg, #1a2b4a 0%, #2563eb 100%); color: white; padding: 40px 48px; }
+  .header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+  .header .subtitle { margin-top: 8px; opacity: 0.85; font-size: 1rem; }
+  .header .meta { margin-top: 12px; font-size: 0.8rem; opacity: 0.6; }
+  .header-badges { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; }
+
+  /* NAVIGATION */
+  .nav { background: var(--primary); position: sticky; top: 0; z-index: 100; display: flex; gap: 0; overflow-x: auto; border-bottom: 3px solid var(--accent); }
+  .nav button { background: none; border: none; color: rgba(255,255,255,0.7); padding: 14px 20px; font-size: 0.85rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: all 0.2s; border-bottom: 3px solid transparent; margin-bottom: -3px; }
+  .nav button:hover { color: white; background: rgba(255,255,255,0.1); }
+  .nav button.active { color: white; border-bottom-color: #60a5fa; background: rgba(255,255,255,0.1); }
+
+  /* MAIN LAYOUT */
+  .main { max-width: 1400px; margin: 0 auto; padding: 32px 24px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 2px solid var(--light); padding-bottom: 14px; }
+  .card-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+  .card-header .icon { width: 36px; height: 36px; background: var(--light); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+
+  /* STAT GRID */
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; text-align: center; }
+  .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--accent); }
+  .stat-card .label { font-size: 0.8rem; color: var(--muted); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-card .sublabel { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th { background: var(--light); color: var(--primary); padding: 10px 14px; text-align: left; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  tr:hover td { background: #f8faff; }
+  tr:last-child td { border-bottom: none; }
+
+  /* PILLS & TAGS */
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+  .pill-green { background: #dcfce7; color: #166534; }
+  .pill-red { background: #fee2e2; color: #991b1b; }
+  .pill-yellow { background: #fef9c3; color: #713f12; }
+  .pill-blue { background: #dbeafe; color: #1d4ed8; }
+  .pill-purple { background: #f3e8ff; color: #6b21a8; }
+  .pill-gray { background: #f1f5f9; color: #475569; }
+
+  /* COMPETITOR CARDS */
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+  .comp-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: box-shadow 0.2s; }
+  .comp-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .comp-name { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+  .comp-type { font-size: 0.78rem; color: var(--muted); margin-bottom: 12px; }
+  .comp-section { margin-top: 10px; }
+  .comp-section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 4px; }
+  .vs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .vs-col { padding: 10px; border-radius: 8px; }
+  .vs-col.strengths { background: #f0fdf4; border: 1px solid #86efac; }
+  .vs-col.weaknesses { background: #fff7ed; border: 1px solid #fcd34d; }
+  .vs-col-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .vs-col ul { padding-left: 14px; font-size: 0.82rem; }
+  .vs-col li { margin-bottom: 3px; }
+
+  /* SECTIONS */
+  .section-header { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 8px; padding-bottom: 10px; border-bottom: 3px solid var(--accent); display: inline-block; }
+  .section-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+
+  /* ALERTS / CALLOUTS */
+  .callout { border-radius: 10px; padding: 16px 20px; margin-bottom: 16px; border-left: 4px solid; }
+  .callout-blue { background: #eff6ff; border-color: var(--accent); }
+  .callout-green { background: #f0fdf4; border-color: var(--accent2); }
+  .callout-yellow { background: #fffbeb; border-color: var(--warn); }
+  .callout-red { background: #fff5f5; border-color: var(--danger); }
+  .callout h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; }
+
+  /* COLLAPSIBLE */
+  .collapsible { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 12px; overflow: hidden; }
+  .collapsible-header { background: var(--light); padding: 14px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; font-weight: 600; }
+  .collapsible-header:hover { background: #e8edf5; }
+  .collapsible-body { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.2s; }
+  .collapsible-body.open { max-height: 3000px; padding: 20px; }
+  .chevron { transition: transform 0.2s; font-size: 0.8rem; }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* TOC */
+  .toc { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 28px; }
+  .toc h2 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--primary); }
+  .toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .toc-item { padding: 8px 14px; background: var(--light); border-radius: 8px; font-size: 0.85rem; cursor: pointer; transition: background 0.2s; border: none; text-align: left; width: 100%; color: var(--text); }
+  .toc-item:hover { background: #dbeafe; color: var(--accent); }
+  .toc-item .toc-num { font-weight: 700; color: var(--accent); margin-right: 6px; }
+
+  /* KEYWORD TABLE */
+  .kw-priority-1 { background: #fef3c7; }
+  .kw-priority-2 { background: #e0f2fe; }
+  .kw-priority-3 { background: #f0fdf4; }
+
+  /* PRICING GRID */
+  .pricing-compare { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  .price-box { border: 2px solid var(--border); border-radius: 10px; padding: 18px; text-align: center; }
+  .price-box.highlight { border-color: var(--accent); background: #eff6ff; }
+  .price-box .company { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .price-box .price { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+  .price-box .desc { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+
+  /* PROGRESS BARS */
+  .progress-bar { background: var(--light); border-radius: 10px; height: 10px; overflow: hidden; margin-top: 4px; }
+  .progress-fill { height: 100%; border-radius: 10px; background: var(--accent); }
+
+  /* GRID 2-COL */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } .comp-grid { grid-template-columns: 1fr; } }
+
+  /* CONTENT CALENDAR */
+  .cal-item { padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--card); border-radius: 0 8px 8px 0; margin-bottom: 10px; }
+  .cal-item.high { border-left-color: var(--danger); }
+  .cal-item.medium { border-left-color: var(--warn); }
+  .cal-item.low { border-left-color: var(--accent2); }
+  .cal-item-title { font-weight: 700; margin-bottom: 4px; }
+  .cal-item-meta { font-size: 0.78rem; color: var(--muted); }
+
+  /* RECOMMENDATION CARDS */
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .rec-card { border-radius: 10px; padding: 18px; border: 1px solid; }
+  .rec-card.quick { background: #f0fdf4; border-color: #86efac; }
+  .rec-card.medium-term { background: #eff6ff; border-color: #93c5fd; }
+  .rec-card.strategic { background: #faf5ff; border-color: #c4b5fd; }
+  .rec-card .rec-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .rec-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+  .rec-card p { font-size: 0.83rem; color: #374151; }
+
+  /* SWOT */
+  .swot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .swot-box { padding: 18px; border-radius: 10px; }
+  .swot-box.S { background: #f0fdf4; border: 1px solid #86efac; }
+  .swot-box.W { background: #fff7ed; border: 1px solid #fcd34d; }
+  .swot-box.O { background: #eff6ff; border: 1px solid #93c5fd; }
+  .swot-box.T { background: #fff5f5; border: 1px solid #fca5a5; }
+  .swot-box h3 { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .swot-box ul { padding-left: 16px; font-size: 0.85rem; }
+  .swot-box li { margin-bottom: 4px; }
+
+  /* REVENUE MODEL */
+  .revenue-bar { margin-bottom: 12px; }
+  .revenue-bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+  .revenue-bar-fill { background: var(--light); border-radius: 10px; height: 14px; overflow: hidden; }
+  .revenue-bar-inner { height: 100%; border-radius: 10px; }
+
+  /* FOOTER */
+  .footer { background: var(--primary); color: rgba(255,255,255,0.6); text-align: center; padding: 24px; font-size: 0.8rem; margin-top: 48px; }
+
+  /* MARKET MAP */
+  .market-map { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .market-map-axis { display: grid; grid-template-columns: 40px 1fr; grid-template-rows: 1fr 40px; height: 420px; }
+  .market-map-y { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); text-align: center; font-size: 0.75rem; font-weight: 700; color: var(--muted); background: var(--light); display: flex; align-items: center; justify-content: center; }
+  .market-map-x { text-align: center; font-size: 0.75rem; font-weight: 700; color: var(--muted); background: var(--light); display: flex; align-items: center; justify-content: center; }
+  .market-map-inner { position: relative; background: var(--card); }
+  .market-map-label { position: absolute; font-size: 0.7rem; color: var(--muted); }
+  .map-dot { position: absolute; transform: translate(-50%, -50%); }
+  .map-dot-circle { border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.65rem; color: white; }
+  .map-dot-name { font-size: 0.7rem; text-align: center; margin-top: 3px; font-weight: 600; max-width: 80px; line-height: 1.2; }
+
+  /* AI search section */
+  .ai-framework { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+  .ai-card { border-radius: 10px; padding: 18px; border: 1px solid var(--border); background: var(--card); }
+  .ai-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .ai-card p, .ai-card li { font-size: 0.83rem; color: #374151; }
+  .ai-card ul { padding-left: 16px; }
+  .ai-card li { margin-bottom: 4px; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 30px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 20px; }
+  .timeline-item::before { content: ''; position: absolute; left: -26px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid white; box-shadow: 0 0 0 2px var(--accent); }
+  .timeline-item h4 { font-weight: 700; font-size: 0.9rem; }
+  .timeline-item p { font-size: 0.83rem; color: var(--muted); margin-top: 2px; }
+
+  /* Keyword chip */
+  .kw-chip { display: inline-block; background: var(--light); border: 1px solid var(--border); padding: 3px 10px; border-radius: 6px; font-size: 0.78rem; margin: 2px; }
+  .kw-chip.high { background: #fef3c7; border-color: #fbbf24; }
+  .kw-chip.med { background: #dbeafe; border-color: #93c5fd; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="max-width:1400px; margin:0 auto;">
+    <h1>🎯 Analyst Academy — Strategic Intelligence Dashboard</h1>
+    <p class="subtitle">Full Competitive Intelligence + SEO & AI Search Visibility Report</p>
+    <p class="meta">Research compiled: March 2026 &nbsp;|&nbsp; Prepared for Paul Moss, Founder &nbsp;|&nbsp; Analyst Academy & SlideStart</p>
+    <div class="header-badges">
+      <span class="badge">📊 Report A: Competitive Intelligence</span>
+      <span class="badge">🔍 Report B: SEO + AI Search</span>
+      <span class="badge">💡 12 Competitors Analyzed</span>
+      <span class="badge">🎯 50+ Action Items</span>
+    </div>
+  </div>
+</div>
+
+<div class="nav" id="mainNav">
+  <button class="active" onclick="showTab('exec')">📋 Executive Summary</button>
+  <button onclick="showTab('aa')">🏢 Analyst Academy</button>
+  <button onclick="showTab('market')">🗺️ Market Landscape</button>
+  <button onclick="showTab('competitors')">⚔️ Competitors</button>
+  <button onclick="showTab('pricing')">💰 Pricing Analysis</button>
+  <button onclick="showTab('seo')">🔍 SEO Intelligence</button>
+  <button onclick="showTab('ai')">🤖 AI Search (GEO)</button>
+  <button onclick="showTab('content')">📅 Content Calendar</button>
+  <button onclick="showTab('recs')">🚀 Recommendations</button>
+</div>
+
+<div class="main">
+
+<!-- ====================== EXECUTIVE SUMMARY ====================== -->
+<div id="tab-exec" class="tab-content active">
+  <div class="toc">
+    <h2>📑 Table of Contents — Quick Navigation</h2>
+    <div class="toc-grid">
+      <button class="toc-item" onclick="showTab('exec')"><span class="toc-num">00</span>Executive Summary</button>
+      <button class="toc-item" onclick="showTab('aa')"><span class="toc-num">01</span>Analyst Academy Profile</button>
+      <button class="toc-item" onclick="showTab('market')"><span class="toc-num">02</span>Market Landscape</button>
+      <button class="toc-item" onclick="showTab('competitors')"><span class="toc-num">03</span>Competitor Analysis (12 players)</button>
+      <button class="toc-item" onclick="showTab('pricing')"><span class="toc-num">04</span>Pricing & Revenue Models</button>
+      <button class="toc-item" onclick="showTab('seo')"><span class="toc-num">05</span>SEO Keyword Intelligence</button>
+      <button class="toc-item" onclick="showTab('ai')"><span class="toc-num">06</span>AI Search Optimization (GEO/AEO)</button>
+      <button class="toc-item" onclick="showTab('content')"><span class="toc-num">07</span>Content Calendar (52-week plan)</button>
+      <button class="toc-item" onclick="showTab('recs')"><span class="toc-num">08</span>Strategic Recommendations</button>
+    </div>
+  </div>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="value">35,000+</div>
+      <div class="label">Professionals Trained</div>
+      <div class="sublabel">100+ countries worldwide</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">11,000+</div>
+      <div class="label">Paid Course Students</div>
+      <div class="sublabel">Across 3 courses</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">30,000+</div>
+      <div class="label">Email Course Students</div>
+      <div class="sublabel">5-day free email course</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">4.9/5</div>
+      <div class="label">Course Ratings</div>
+      <div class="sublabel">Presentation Storytelling & Advanced PPT</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">$10,000+</div>
+      <div class="label">Live Training Floor Price</div>
+      <div class="sublabel">Per team session</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">$597</div>
+      <div class="label">Bundle (Best Value)</div>
+      <div class="sublabel">All 3 courses (was $997)</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="icon">📋</div>
+      <h2>Executive Summary — Key Findings</h2>
+    </div>
+    
+    <div class="callout callout-green">
+      <h3>✅ Position Strength: The Consulting-Specific Moat</h3>
+      <p>Analyst Academy occupies a highly defensible niche: <strong>consulting-style presentation and slide building skills for professionals</strong>. No direct competitor combines all three: (1) McKinsey/consulting methodology, (2) real PowerPoint mechanics, and (3) data visualization — at accessible self-paced pricing. This is a genuine white space.</p>
+    </div>
+
+    <div class="callout callout-yellow">
+      <h3>⚠️ Primary Threat: AI-Powered Presentation Tools</h3>
+      <p>Tools like Beautiful.ai, Gamma, Tome, and Canva are automating slide creation. The threat isn't immediate — AI tools still produce generic, unstructured output — but the question of "why learn to build slides when AI can do it?" will intensify. Analyst Academy must be positioned as <strong>judgment and storytelling skills</strong>, not just mechanical skills.</p>
+    </div>
+
+    <div class="callout callout-blue">
+      <h3>🔍 SEO & AI Search Opportunity</h3>
+      <p>Analyst Academy has significant organic search opportunity around high-intent keywords like "PowerPoint tips for consultants," "McKinsey slide design," "pyramid principle presentation," and "data visualization for business." The site is likely under-indexed compared to potential traffic. Additionally, AI search (ChatGPT, Perplexity, Google AI Overviews) is a major new channel requiring specific optimization — the first mover who becomes the "authoritative definition source" for consulting presentation topics will win disproportionate citation share.</p>
+    </div>
+
+    <div class="callout callout-blue">
+      <h3>💰 Revenue Model Opportunity</h3>
+      <p>Current model is healthy (self-paced courses + live training) but has gaps. Competitors like Storytelling With Data run $595/person public workshops and 8-week cohorts at premium prices. Duarte charges $129–$990 per individual course. Analyst Academy appears to leave substantial revenue on the table in: (a) public cohort programs, (b) certification ecosystem, (c) a subscription/community tier, and (d) SlideStart monetization.</p>
+    </div>
+
+    <h3 style="margin: 20px 0 12px; font-size: 1rem; color: var(--primary);">Top 10 Strategic Priorities</h3>
+    <div style="counter-reset: priority;">
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>1. Double down on "consulting firm methodology" positioning</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>The McKinsey/BCG/Bain connection is the biggest differentiator. No competitor authentically owns "how consulting firms actually build slides." Create cornerstone content: "The Complete Guide to McKinsey-Style Slides," "How Top Consulting Firms Structure Presentations," etc. These will rank in both traditional search and AI queries.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>2. Launch a public cohort program ($595–$995/person)</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>Storytelling With Data charges $595 for a half-day workshop. A structured 4–8 week "Consulting Presentation Mastery" cohort at $795–$995/person with a cohort of 30–50 could generate $25k–$50k per run with minimal marginal cost. The email list of 30,000+ provides a ready-made audience to fill cohorts.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>3. Build GEO/AEO content to capture AI search traffic</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>AI Overviews now appear for 16% of all searches. ChatGPT, Perplexity, and Claude are becoming primary research tools for professionals. The site that "defines" concepts like the Pyramid Principle, MECE principle, slide titles, waterfall charts, and Mekko charts will get cited repeatedly by AI tools. This requires authoritative, structured, definition-rich content with statistics and examples — not just blog posts.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>4. Monetize SlideStart more aggressively</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>SlideStart is positioned as a free resource but has clear value for a premium tier. Consider: (a) Free: browse slides; (b) Pro $15/month: download slides + customizable templates; (c) Team $49/month: team access + brand kit. This creates a recurring revenue stream. The site's user reviews indicate high enthusiasm — "I love this site!" — suggesting conversion potential.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>5. Build a membership/community tier</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>A community (e.g., on Circle or Slack) at $29–$49/month for presentation professionals could generate significant recurring revenue. With even 500 members, that's $15k–$25k MRR. Content: monthly live office hours with Paul, slide critique sessions, new template drops, networking with other consulting/strategy professionals.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>6. SEO: Target "best of" and comparison content</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>Ahrefs' research shows "best" content gets 7% of AI traffic, "vs" comparisons get 4.9%, how-to guides get 6.3%. Analyst Academy should create: "Best PowerPoint shortcuts for consultants," "McKinsey vs BCG slide style," "Pyramid Principle vs. Barbara Minto structure," "PowerPoint vs. Google Slides for consulting." These are high-intent, low-competition terms.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>7. Expand into adjacent professional audiences</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>Currently focused on consulting/finance/strategy. Large adjacent markets include: investment banking analysts, startup founders building pitch decks, corporate L&D teams, MBA programs (university B2B channel), tech company senior ICs and PMs. Each represents a 100k+ addressable audience.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>8. University/MBA channel for B2B growth</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>University business programs spend significantly on professional skills training. A "Consulting Club Licensing" or "MBA Cohort Package" at $5k–$20k per institution could add a meaningful B2B revenue stream. Paul's Wharton connection is a natural door-opener. Target: Wharton MBA, Harvard Business School, Kellogg, Booth, Tuck — all have consulting clubs.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>9. Invest in LinkedIn + YouTube flywheel</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>Paul mentions 10M+ views across YouTube/Instagram/LinkedIn. This social proof and distribution channel is undermonetized relative to competitors. Duarte has 25,000+ LinkedIn followers. Storytelling With Data's Cole Nussbaumer Knaflic has significant book-driven credibility. Paul should amplify thought leadership clips, slide makeover content, and framework explainers — these are highly shareable in the consulting/business community.</p>
+      </div>
+    </div>
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>10. Create a certification program with employer verification</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <p>The Certified Presentations Professional (CPP) already exists — but it needs marketing investment. Corporate buyers care about certification more than individuals. Pitch to consulting firms' L&D teams: "Your analysts can become CPP certified in under 20 hours." Create verification portal where employers can confirm certifications. Build referral relationships with recruiting firms that place people into consulting roles.</p>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== ANALYST ACADEMY PROFILE ====================== -->
+<div id="tab-aa" class="tab-content">
+  <div class="section-header">Analyst Academy — Full Business Profile</div>
+  <p class="section-sub">Comprehensive analysis of current product, pricing, and positioning across all properties</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="icon">🎓</div><h2>Course Products & Pricing</h2></div>
+      
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapse(this)">
+          <span>🥇 Presentation Storytelling — $297</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <p><strong>Students:</strong> 5,000+ enrolled | <strong>Rating:</strong> 4.9/5 ⭐<br>
+          <strong>Duration:</strong> 4–5 hours | <strong>Format:</strong> Self-paced online<br><br>
+          <strong>Core curriculum:</strong> SCQA Framework, Pyramid Principle (Parts 1 & 2), Presentation Storytelling methodology, Slide Structure (Parts 1 & 2), Simplicity/Focus/Formatting principles, Case Studies.<br><br>
+          <strong>Target:</strong> Professionals who want to structure and design consulting-quality presentations. "Most Popular" course.<br><br>
+          <strong>Bundle Tiers:</strong><br>
+          • Single: $297 (2-year access)<br>
+          • Bundle: $597 (was $997 — all 3 courses, 3-year access, Ampler add-ins)<br>
+          • Pro Bundle: $897 (was $1,497 — 1-on-1 feedback, ~1,000 templates, 5-year access)</p>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapse(this)">
+          <span>⚡ Advanced PowerPoint for Consultants — $247</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <p><strong>Students:</strong> 4,000–4,500 enrolled | <strong>Rating:</strong> 4.9/5 ⭐<br>
+          <strong>Duration:</strong> 4–5 hours | <strong>Format:</strong> Self-paced online<br><br>
+          <strong>Core curriculum:</strong> Shortcuts, Five Power Shortcuts, Custom Setup, Mastering Shapes (3 parts), Align/Group/Distribute/Layer objects, Slide Master, Colors, Icons, Pictures, Charts, Tables, Building the Ghost Deck, Reviewing/Finalizing/Presenting.<br><br>
+          <strong>Target:</strong> Professionals who want to work faster in PowerPoint with consultant-level efficiency. "Popular" course.</p>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapse(this)">
+          <span>📊 Data Visualization for Consultants — $247</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <p><strong>Students:</strong> 2,000–2,500 enrolled | <strong>Rating:</strong> 4.6/5 ⭐<br>
+          <strong>Duration:</strong> 5–6 hours | <strong>Format:</strong> Self-paced online<br><br>
+          <strong>Core curriculum:</strong> Chart selection (Bar, Column, Pie, Line, Scatter Plot, Case Study), Data Storytelling (Simplicity, Focus, Formatting), Advanced Charts (Waterfall, Mekko, Radar), Final Assessment.<br><br>
+          <strong>Bonus:</strong> 6-month Ampler subscription included (PC only)<br>
+          <strong>Target:</strong> Professionals who need to present data clearly with proper chart selection.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="icon">🏛️</div><h2>Live Training & Teams</h2></div>
+
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapse(this)">
+          <span>🎤 Presentation Storytelling Live Training</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <p><strong>Starting price:</strong> $10,000 USD (up to ~10 users)<br>
+          <strong>Enterprise:</strong> Custom pricing (10+ people)<br>
+          <strong>Format:</strong> Half-day session (4 hours), virtual or onsite<br>
+          <strong>Travel:</strong> Included<br><br>
+          <strong>Modules:</strong><br>
+          • Introduction: storytelling value + 3-step framework (Content, Structure, Design)<br>
+          • Module I: Structure (Pyramid Principle, Slide Structure, Hierarchy)<br>
+          • Module II: Design (Simplicity, clarity, professionalism)<br>
+          • Module III: Data Visualization (optional)<br>
+          • Conclusion + resources<br><br>
+          <strong>Included:</strong> Self-paced course access (3 years), user management dashboard, progress tracker, flexible payment, priority support<br><br>
+          <strong>Customers:</strong> Fortune 100 Tech, Boutique Consulting Firms, Government Agencies, Major Telecom Companies, Finance Organizations</p>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapse(this)">
+          <span>👥 Courses for Teams</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <p><strong>Pricing:</strong> Bulk pricing (custom, contact required)<br>
+          <strong>Features:</strong> Admin dashboard, student progress tracker, volume discounts, priority support<br>
+          <strong>Certification:</strong> Certified Presentations Professional (CPP) — digital LinkedIn badge upon completing all 3 courses<br><br>
+          <strong>Target buyers:</strong> Consulting firms, strategy teams, finance departments, government agencies, universities</p>
+        </div>
+      </div>
+
+      <div class="collapsible">
+        <div class="collapsible-header" onclick="toggleCollapse(this)">
+          <span>📧 Free 5-Day Email Course</span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="collapsible-body">
+          <p><strong>Students:</strong> 30,000+ enrolled (key funnel asset)<br>
+          <strong>Lead magnet:</strong> "Top 50 PowerPoint Shortcuts for Consultants" included<br>
+          <strong>Function:</strong> Top-of-funnel email course → converts to paid courses<br>
+          <strong>Analysis:</strong> 30,000 email subscribers is a significant asset. Even 1% conversion at $297 = ~$90,000 in course revenue potential from the list alone.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🖼️</div><h2>SlideStart — Product Profile</h2></div>
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:0.95rem; margin-bottom:12px;">What SlideStart Is</h3>
+        <p style="font-size:0.88rem; margin-bottom:12px;">SlideStart is positioned as "The Internet's Best Slides" — a library of real business slides and customizable templates. It's a slide inspiration and template resource for professionals building presentations.</p>
+        <h4 style="font-size:0.85rem; font-weight:700; margin-bottom:8px; margin-top:16px;">Template Categories Available:</h4>
+        <div style="margin-bottom:12px;">
+          <span class="kw-chip">Business Template</span>
+          <span class="kw-chip">Training Template</span>
+          <span class="kw-chip">Analyst Academy Template</span>
+          <span class="kw-chip">Operations Template</span>
+          <span class="kw-chip">Marketing Template</span>
+          <span class="kw-chip">Consulting Template</span>
+        </div>
+        <h4 style="font-size:0.85rem; font-weight:700; margin-bottom:8px;">Slide Library:</h4>
+        <p style="font-size:0.88rem;">Browseable library of real slides (slide IDs up to #16,616+ visible in URL patterns). Users can browse for inspiration or access customizable templates.</p>
+      </div>
+      <div>
+        <h3 style="font-size:0.95rem; margin-bottom:12px;">User Sentiment (Direct Quotes)</h3>
+        <div class="callout callout-green" style="margin-bottom:8px;">
+          <p style="font-size:0.82rem;">"Wow, impressed, this is exactly what I've been looking for. It is extremely helpful"</p>
+        </div>
+        <div class="callout callout-green" style="margin-bottom:8px;">
+          <p style="font-size:0.82rem;">"I'm so tired of random slides when searching on Google when the page shows 1000 terrible slides. Now I don't need Google, I have you."</p>
+        </div>
+        <div class="callout callout-green" style="margin-bottom:8px;">
+          <p style="font-size:0.82rem;">"This website is fantastic! I've been avidly following your content on YouTube and recommending it to everyone I know"</p>
+        </div>
+        <div class="callout callout-blue">
+          <h3>💡 Monetization Gap</h3>
+          <p style="font-size:0.82rem;">User sentiment is very strong but the site appears to be primarily free. Strong candidate for freemium model with premium download/template tier at $10–$15/month.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">👤</div><h2>Paul Moss — Founder Profile & Brand Assets</h2></div>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-size:0.9rem; margin-bottom:10px;">Credentials</h4>
+        <ul style="font-size:0.88rem; padding-left:20px; margin-bottom:16px;">
+          <li><strong>MBA</strong> — Wharton Business School (Ivy League)</li>
+          <li><strong>MA</strong> — UPenn's Lauder Institute</li>
+          <li><strong>BS</strong> — Brigham Young University</li>
+          <li>Management Consultant & Corporate Strategy professional</li>
+          <li>Industries: Tech, Healthcare, Retail, Telecom</li>
+        </ul>
+        <h4 style="font-size:0.9rem; margin-bottom:10px;">Content Reach</h4>
+        <ul style="font-size:0.88rem; padding-left:20px;">
+          <li>10M+ views across YouTube, Instagram, LinkedIn</li>
+          <li>35,000+ trained professionals in 100+ countries</li>
+          <li>30,000+ email subscribers</li>
+          <li>Active YouTube channel @analystacademy</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="font-size:0.9rem; margin-bottom:10px;">Brand Strengths</h4>
+        <ul style="font-size:0.88rem; padding-left:20px; margin-bottom:16px;">
+          <li>Authentic consulting background (not just a "presentation coach")</li>
+          <li>Wharton MBA lends credibility with target professional audience</li>
+          <li>Real-world examples from actual consulting engagements</li>
+          <li>Trusted by Fortune 500 companies and government agencies</li>
+          <li>Strong testimonials from senior consulting/strategy professionals</li>
+        </ul>
+        <h4 style="font-size:0.9rem; margin-bottom:10px;">Areas to Develop</h4>
+        <ul style="font-size:0.88rem; padding-left:20px;">
+          <li>Book authorship (competitors like Duarte, Cole Knaflic have best-selling books)</li>
+          <li>Public speaking/keynote profile</li>
+          <li>LinkedIn thought leadership content volume</li>
+          <li>Speaking at consulting/MBA conferences</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">⚔️</div><h2>Analyst Academy SWOT Analysis</h2></div>
+    <div class="swot-grid">
+      <div class="swot-box S">
+        <h3>💪 Strengths</h3>
+        <ul>
+          <li>Unique consulting-specific positioning (McKinsey/BCG methodology)</li>
+          <li>Instructor credibility: Wharton MBA + real consulting experience</li>
+          <li>Exceptional ratings (4.9/5 stars across multiple courses)</li>
+          <li>30,000+ email subscribers — major funnel asset</li>
+          <li>Strong B2B track record (Fortune 100, consulting firms, government)</li>
+          <li>Two complementary products: Academy + SlideStart</li>
+          <li>CPP certification creates enterprise sales differentiation</li>
+          <li>Very competitive pricing vs Duarte ($297 vs $990)</li>
+          <li>10M+ content views shows strong content distribution</li>
+        </ul>
+      </div>
+      <div class="swot-box W">
+        <h3>⚠️ Weaknesses</h3>
+        <ul>
+          <li>No published book (competitors have bestsellers that drive brand)</li>
+          <li>SlideStart appears un-monetized (leaving recurring revenue on table)</li>
+          <li>No public cohort or workshop program at $500–$1000 price point</li>
+          <li>No community/membership tier for ongoing engagement</li>
+          <li>Limited SEO content depth (vs Duarte's extensive blog/resource library)</li>
+          <li>Small team for content output vs well-funded competitors</li>
+          <li>No industry analyst or press coverage visible</li>
+          <li>Course access expires (2–5 years) — customers may perceive this as a risk</li>
+        </ul>
+      </div>
+      <div class="swot-box O">
+        <h3>🚀 Opportunities</h3>
+        <ul>
+          <li>AI search (GEO) is in early innings — first mover advantage available</li>
+          <li>AI presentation tools create fear/uncertainty — training demand increases</li>
+          <li>Corporate L&D budgets recovering post-2023 belt-tightening</li>
+          <li>MBA program partnerships (Wharton connection is a natural entrée)</li>
+          <li>Book deal with a business publisher (McGraw Hill, Wiley, Portfolio)</li>
+          <li>Expansion to investment banking/private equity analyst audience</li>
+          <li>LinkedIn Learning licensing deal potential</li>
+          <li>International expansion (emerging markets: India, SE Asia, Latin America)</li>
+          <li>Pitch deck niche for startup founders</li>
+          <li>Freemium/subscription model for SlideStart</li>
+        </ul>
+      </div>
+      <div class="swot-box T">
+        <h3>🔴 Threats</h3>
+        <ul>
+          <li>AI tools (Gamma, Beautiful.ai, Tome) making slide building "automatic"</li>
+          <li>Duarte expanding into self-paced market with aggressive pricing</li>
+          <li>LinkedIn Learning competing with unlimited subscription model</li>
+          <li>Storytelling With Data expanding from data viz into full presentations</li>
+          <li>New well-funded entrant with VC backing and heavy marketing spend</li>
+          <li>Google AI Overviews reducing organic traffic to educational content</li>
+          <li>Economic downturn reducing corporate training budgets</li>
+          <li>Course platforms (Udemy, Coursera) commoditizing course content</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== MARKET LANDSCAPE ====================== -->
+<div id="tab-market" class="tab-content">
+  <div class="section-header">Market Landscape</div>
+  <p class="section-sub">The presentation training and professional development market — structure, size, and dynamics</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="value">~$400B</div>
+      <div class="label">Global Corporate Training Market</div>
+      <div class="sublabel">Total addressable market (all training)</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">~$50B</div>
+      <div class="label">Professional Skills Training</div>
+      <div class="sublabel">Communication, presentations, etc.</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">~$5-10B</div>
+      <div class="label">Presentation/Communication Skills</div>
+      <div class="sublabel">Estimated sub-segment</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">~$500M</div>
+      <div class="label">Consulting-Style Presentation Training</div>
+      <div class="sublabel">Estimated Analyst Academy's serviceable market</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🗺️</div><h2>Competitive Landscape Map</h2></div>
+    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Positioned by Audience Specificity (X-axis: General → Consulting-specific) and Delivery Format (Y-axis: DIY/Self-paced → High-touch/Consulting)</p>
+    
+    <div style="position:relative; border:1px solid var(--border); border-radius:10px; background:linear-gradient(135deg,#f8f9ff 0%,#f0f7ff 100%); height:420px; overflow:hidden;">
+      <!-- Axis Labels -->
+      <div style="position:absolute; top:8px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--muted); font-weight:600;">HIGH-TOUCH / CONSULTING</div>
+      <div style="position:absolute; bottom:8px; left:50%; transform:translateX(-50%); font-size:0.7rem; color:var(--muted); font-weight:600;">SELF-PACED / DIY</div>
+      <div style="position:absolute; left:8px; top:50%; transform:translateY(-50%) rotate(-90deg); font-size:0.7rem; color:var(--muted); font-weight:600; white-space:nowrap;">GENERAL AUDIENCE</div>
+      <div style="position:absolute; right:8px; top:50%; transform:translateY(-50%) rotate(90deg); font-size:0.7rem; color:var(--muted); font-weight:600; white-space:nowrap;">CONSULTING-SPECIFIC</div>
+      
+      <!-- Grid lines -->
+      <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:rgba(0,0,0,0.1);"></div>
+      <div style="position:absolute; top:50%; left:0; right:0; height:1px; background:rgba(0,0,0,0.1);"></div>
+
+      <!-- Competitors as dots -->
+      <div style="position:absolute; left:20%; top:15%; text-align:center;">
+        <div style="width:50px;height:50px;border-radius:50%;background:#8b5cf6;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:white;font-weight:700;margin:0 auto;">Duarte</div>
+        <div style="font-size:0.65rem;margin-top:2px;max-width:60px;">High-touch, general</div>
+      </div>
+      
+      <div style="position:absolute; left:45%; top:12%; text-align:center;">
+        <div style="width:44px;height:44px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:white;font-weight:700;margin:0 auto;">BrightC</div>
+        <div style="font-size:0.65rem;margin-top:2px;max-width:60px;">Design agency focus</div>
+      </div>
+      
+      <div style="position:absolute; left:65%; top:10%; text-align:center;">
+        <div style="width:48px;height:48px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:white;font-weight:700;margin:0 auto;">SWD</div>
+        <div style="font-size:0.65rem;margin-top:2px;max-width:70px;">Data storytelling</div>
+      </div>
+
+      <div style="position:absolute; left:10%; top:55%; text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:#6366f1;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:white;font-weight:700;margin:0 auto;">LinkedIn Learn</div>
+        <div style="font-size:0.65rem;margin-top:2px;max-width:70px;">Scale player, general</div>
+      </div>
+
+      <div style="position:absolute; left:12%; top:70%; text-align:center;">
+        <div style="width:52px;height:52px;border-radius:50%;background:#64748b;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:white;font-weight:700;margin:0 auto;">Udemy</div>
+        <div style="font-size:0.65rem;margin-top:2px;max-width:70px;">Marketplace, low cost</div>
+      </div>
+
+      <div style="position:absolute; left:35%; top:65%; text-align:center;">
+        <div style="width:42px;height:42px;border-radius:50%;background:#ec4899;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:white;font-weight:700;margin:0 auto;">TOTS</div>
+        <div style="font-size:0.65rem;margin-top:2px;max-width:70px;">Dave Paradi</div>
+      </div>
+
+      <div style="position:absolute; left:30%; top:35%; text-align:center;">
+        <div style="width:40px;height:40px;border-radius:50%;background:#ef4444;display:flex;align-items:center;justify-content:center;font-size:0.55rem;color:white;font-weight:700;margin:0 auto;">Ethos3</div>
+      </div>
+
+      <!-- Analyst Academy — highlighted -->
+      <div style="position:absolute; left:68%; top:55%; text-align:center;">
+        <div style="width:64px;height:64px;border-radius:50%;background:#2563eb;border:3px solid white;box-shadow:0 0 0 3px #2563eb;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:white;font-weight:800;margin:0 auto;">Analyst Academy ⭐</div>
+        <div style="font-size:0.7rem;margin-top:3px;max-width:80px;font-weight:700;color:#2563eb;">YOUR POSITION</div>
+      </div>
+    </div>
+
+    <p style="font-size:0.8rem; color:var(--muted); margin-top:8px;"><strong>Key insight:</strong> Analyst Academy (blue ⭐) sits in a unique position: self-paced delivery with consulting-specific content. This quadrant has very little competition. Duarte is high-touch/general. LinkedIn Learning is self-paced/general. This is the moat.</p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-header"><div class="icon">📈</div><h2>Market Dynamics & Trends</h2></div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <h4>Rise of AI presentation tools (2023–present)</h4>
+          <p>Gamma, Beautiful.ai, Tome, and Canva AI are growing rapidly. This creates both a threat (reduces need for mechanical skills) and an opportunity (creates demand for judgment/storytelling skills that AI can't replace).</p>
+        </div>
+        <div class="timeline-item">
+          <h4>Corporate L&D digital transformation</h4>
+          <p>Companies increasingly prefer scalable self-paced training over in-person workshops. Analyst Academy's model is well-positioned for this trend.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>Hybrid/remote work driving presentation demand</h4>
+          <p>Post-COVID professional communication has shifted heavily to async documents and virtual presentations. This increases demand for slide-building skills at all levels.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>Consulting industry headcount growth</h4>
+          <p>Management consulting grew significantly through 2022 and while cooling slightly in 2023-24, still employs 700,000+ in the US alone — all of whom need presentation skills.</p>
+        </div>
+        <div class="timeline-item">
+          <h4>AI Overviews reducing organic search traffic</h4>
+          <p>Google's AI Overviews correlate with 34.5% CTR drops for top-ranked pages. Sites that aren't cited IN AI answers will lose visibility. Building AI citation authority now is critical.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="icon">🎯</div><h2>Market Segmentation</h2></div>
+      <div class="table-wrap">
+        <table>
+          <tr>
+            <th>Segment</th>
+            <th>Description</th>
+            <th>AA Fit</th>
+          </tr>
+          <tr>
+            <td><strong>Consulting Analysts</strong></td>
+            <td>MBB, Big 4, boutique firms. 100k+ in US</td>
+            <td><span class="pill pill-green">Primary ✅</span></td>
+          </tr>
+          <tr>
+            <td><strong>Corporate Strategy</strong></td>
+            <td>In-house strategy teams at F500</td>
+            <td><span class="pill pill-green">Primary ✅</span></td>
+          </tr>
+          <tr>
+            <td><strong>Finance Professionals</strong></td>
+            <td>IB, PE, Corp Dev analysts building decks</td>
+            <td><span class="pill pill-green">Strong ✅</span></td>
+          </tr>
+          <tr>
+            <td><strong>MBA Students</strong></td>
+            <td>Pre-employment skill-building, recruiting</td>
+            <td><span class="pill pill-blue">Good ✅</span></td>
+          </tr>
+          <tr>
+            <td><strong>Tech PMs/Senior ICs</strong></td>
+            <td>Product reviews, exec presentations</td>
+            <td><span class="pill pill-blue">Adjacent 🔲</span></td>
+          </tr>
+          <tr>
+            <td><strong>Startup Founders</strong></td>
+            <td>Investor pitch decks</td>
+            <td><span class="pill pill-yellow">Underserved 🔲</span></td>
+          </tr>
+          <tr>
+            <td><strong>Government Analysts</strong></td>
+            <td>Policy briefings, budget presentations</td>
+            <td><span class="pill pill-blue">Emerging ✅</span></td>
+          </tr>
+          <tr>
+            <td><strong>University/MBA Programs</strong></td>
+            <td>Institutional B2B license buyers</td>
+            <td><span class="pill pill-purple">Opportunity 🚀</span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== COMPETITORS ====================== -->
+<div id="tab-competitors" class="tab-content">
+  <div class="section-header">Competitor Deep Dives</div>
+  <p class="section-sub">12 key players analyzed — products, pricing, scale, positioning, and comparison to Analyst Academy</p>
+
+  <div class="comp-grid">
+
+    <!-- DUARTE -->
+    <div class="comp-card">
+      <div class="comp-name">Duarte, Inc.</div>
+      <div class="comp-type">🏢 Full-Service Training + Creative Agency | Mountain View, CA</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Products & Services</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Individual courses: Resonate® ($990 live, $395 on-demand), Slide Design ($129), VisualStory®, DataStory®, Slide:ology®, Slidedocs®, Adaptive Listening®</li>
+          <li>Team training: Custom packages for 10+ people</li>
+          <li>Creative services: Full presentation design for executives</li>
+          <li>Books: 8 bestsellers (Resonate, Slide:ology, DataStory, etc.)</li>
+          <li>Speaking engagements: Nancy Duarte keynotes</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Scale & Presence</div>
+        <p style="font-size:0.83rem;">25,000+ LinkedIn followers | 35+ years in business | Clients include Apple, Cisco, Visa, Cloudflare | 98% customer repurchase rate | 9.5/10 avg facilitator score</p>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Revenue Streams</div>
+        <div style="font-size:0.83rem;">
+          <span class="pill pill-blue">Training courses</span>
+          <span class="pill pill-green">Creative services</span>
+          <span class="pill pill-purple">Books</span>
+          <span class="pill pill-yellow">Speaking</span>
+          <span class="pill pill-gray">Enterprise contracts</span>
+        </div>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Strengths vs AA</div>
+          <ul><li>35+ year brand</li><li>Nancy Duarte's fame</li><li>Full-service (train + design)</li><li>8 bestselling books</li><li>Enterprise relationships</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Weaknesses vs AA</div>
+          <ul><li>Very expensive ($990+ live)</li><li>General audience, not consulting-specific</li><li>Less practical/tactical</li><li>No consulting methodology</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- STORYTELLING WITH DATA -->
+    <div class="comp-card">
+      <div class="comp-name">Storytelling With Data (SWD)</div>
+      <div class="comp-type">📊 Data Visualization + Business Communication | Cole Nussbaumer Knaflic</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Products & Services</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Public workshops: $595/person (4-hour virtual)</li>
+          <li>8-week online course: ~$1,200+ (includes 2 books)</li>
+          <li>Team trainings: Custom pricing</li>
+          <li>Books: "Storytelling with Data," "Let's Practice!" and more</li>
+          <li>SWD Community: Premium online community</li>
+          <li>Podcast and YouTube content</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Scale & Presence</div>
+        <p style="font-size:0.83rem;">Bestselling author | Strong LinkedIn presence | Global workshops | SWD community platform | Frequently cited in business/data education contexts</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Strengths vs AA</div>
+          <ul><li>Bestselling books create authority</li><li>Strong data viz focus</li><li>Community platform</li><li>Public workshop cadence</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Weaknesses vs AA</div>
+          <ul><li>Data viz only, not full presentations</li><li>No PowerPoint mechanics training</li><li>No consulting-specific content</li><li>Higher price points</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRIGHTCARBON -->
+    <div class="comp-card">
+      <div class="comp-name">BrightCarbon</div>
+      <div class="comp-type">🎨 Presentation Design Agency + Training | UK-based</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Products & Services</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Presentation design services (agency model)</li>
+          <li>Advanced PowerPoint training (group sessions)</li>
+          <li>Google Slides training</li>
+          <li>eLearning design</li>
+          <li>Free online PowerPoint course (lead gen)</li>
+          <li>Animations, graphics, infographics</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Model Notes</div>
+        <p style="font-size:0.83rem;">Primary revenue from agency (design services), with training as secondary. Free content as lead gen. Strong blog/resource content. UK-centric but operates globally.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Strengths vs AA</div>
+          <ul><li>Design agency credibility</li><li>Free resources drive SEO</li><li>Strong visual content</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Weaknesses vs AA</div>
+          <ul><li>Agency model = not scalable like courses</li><li>No consulting methodology</li><li>UK-based, less US-focused</li><li>No data viz training</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- THINK OUTSIDE THE SLIDE (Dave Paradi) -->
+    <div class="comp-card">
+      <div class="comp-name">Think Outside The Slide</div>
+      <div class="comp-type">💡 Dave Paradi — Speaker, Author, Trainer | 24+ years experience</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Products & Services</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Customized virtual training: Virtual presentations, exec presentations, practical PowerPoint</li>
+          <li>1-on-1 coaching: Virtual presentations & PowerPoint skills</li>
+          <li>Online courses & CPE/CPD courses for accountants</li>
+          <li>FinancialViz workshops (financial data visualization)</li>
+          <li>10 books authored</li>
+          <li>Free resources: articles, newsletter, calculators</li>
+          <li>YouTube: 4.8M views on virtual presenting</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Differentiator</div>
+        <p style="font-size:0.83rem;">Strong niche in financial data visualization ("FinancialViz") and accountant CPE credits. 24+ years of credibility. Very extensive free resource library.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Strengths vs AA</div>
+          <ul><li>24+ years brand</li><li>Financial viz niche</li><li>Huge free resource library</li><li>CPE/CPD certified courses</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Weaknesses vs AA</div>
+          <ul><li>One-person business scaling limits</li><li>No consulting-style methodology</li><li>Older brand, dated feel</li><li>No enterprise team training at scale</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESENTATION HACK -->
+    <div class="comp-card">
+      <div class="comp-name">Presentation Hack</div>
+      <div class="comp-type">🎤 Communication Skills Training | Stephanie O'Boyle</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Products & Services</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Self-paced course: "How to Communicate Clearly and Confidently"</li>
+          <li>Three tiers: Self-paced | Self-paced + Feedback | + 1-on-1 Coaching</li>
+          <li>Templates and downloadable resources</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Positioning</div>
+        <p style="font-size:0.83rem;">Behavioral principles-based approach. Instructor is University of Galway academic with MBA. Not consulting-specific — more general professional communication. Smaller scale than AA.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Strengths vs AA</div>
+          <ul><li>Behavioral science angle</li><li>1-on-1 coaching option</li><li>Academic credibility</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Weaknesses vs AA</div>
+          <ul><li>Much smaller scale</li><li>No PowerPoint skills</li><li>No consulting methodology</li><li>No data viz</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETHOS3 -->
+    <div class="comp-card">
+      <div class="comp-name">Ethos3</div>
+      <div class="comp-type">🎯 Presentation Design & Coaching Agency | 19+ years</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Products & Services</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Content coaching: message shaping</li>
+          <li>Story & structure development</li>
+          <li>Delivery training (personal coaching)</li>
+          <li>Blog content/resources</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Positioning</div>
+        <p style="font-size:0.83rem;">Focused on stage-readiness and delivery. "The Fastest Way to Level Up Your Presentation Skills." More coaching/agency than self-paced course product. 19+ years experience.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Strengths vs AA</div>
+          <ul><li>Deep delivery coaching</li><li>19+ year credibility</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Weaknesses vs AA</div>
+          <ul><li>Not scalable self-paced model</li><li>No PowerPoint training</li><li>Not consulting-specific</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINKEDIN LEARNING -->
+    <div class="comp-card">
+      <div class="comp-name">LinkedIn Learning</div>
+      <div class="comp-type">🔗 Microsoft-owned e-learning platform | Unlimited subscription</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Products & Services</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Hundreds of courses on presentations, PowerPoint, public speaking</li>
+          <li>Individual: ~$40/month or ~$240/year</li>
+          <li>Teams/Enterprise: Custom (often ~$500–$800/user/year)</li>
+          <li>Certifications and learning paths</li>
+          <li>Integration with LinkedIn profile/skills</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Scale</div>
+        <p style="font-size:0.83rem;">100M+ LinkedIn subscribers | Massive distribution | Microsoft Office integration | But: courses are generic, not consulting-specific. Average instructor credibility vs Paul Moss.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Strengths vs AA</div>
+          <ul><li>Massive distribution/reach</li><li>Subscription model (perceived value)</li><li>Microsoft integration</li><li>Corporate enterprise contracts</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Weaknesses vs AA</div>
+          <ul><li>Generic content, not consulting-specific</li><li>No McKinsey methodology</li><li>Commoditized instructor quality</li><li>No data viz for consultants</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- UDEMY -->
+    <div class="comp-card">
+      <div class="comp-name">Udemy</div>
+      <div class="comp-type">🎓 E-learning marketplace | Global platform</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Competitive Courses</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>"Presentation Skills: Master Confident Presentations" — high enrollment</li>
+          <li>"Duarte Slide Design" — Duarte-licensed course on Udemy ($12–$15 sale price)</li>
+          <li>Hundreds of PowerPoint courses ($10–$200)</li>
+          <li>Udemy for Business: corporate subscription model</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Notes</div>
+        <p style="font-size:0.83rem;">Udemy is a marketplace, not a curator. Courses compete on price (often $10–$15 on sale). Analyst Academy is correctly NOT on Udemy — selling direct maintains brand, pricing power, and margin. The risk is that Udemy courses attract price-sensitive learners who might otherwise discover AA.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Threat Level</div>
+          <ul><li>Large audience size</li><li>Very low prices attract casual learners</li><li>SEO presence for broad terms</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">AA Advantage</div>
+          <ul><li>AA far more specialized</li><li>Higher quality ratings</li><li>More professional credibility</li><li>Direct relationship with learner</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- COURSERA -->
+    <div class="comp-card">
+      <div class="comp-name">Coursera</div>
+      <div class="comp-type">🎓 University-backed e-learning | Global platform</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Relevant Courses</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li>Wharton Business Communication specialization</li>
+          <li>Presentation skills courses from various universities</li>
+          <li>Data visualization via Tableau, Coursera partners</li>
+          <li>Microsoft PowerPoint courses</li>
+          <li>~$49/month or ~$399/year subscription model</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Notes</div>
+        <p style="font-size:0.83rem;">Coursera targets learners seeking credentialed university-backed learning. The Paul Moss/Wharton connection is interesting here — there's a potential future opportunity for a Wharton-branded course on Coursera, but it would require institutional partnership.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Threat Level</div>
+          <ul><li>University credibility</li><li>Subscription model</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">AA Advantage</div>
+          <ul><li>No consulting-specific PPT course</li><li>Academic vs practical focus</li><li>Higher price for full specialization</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- BEAUTIFUL.AI / GAMMA / AI TOOLS -->
+    <div class="comp-card">
+      <div class="comp-name">AI Presentation Tools (Gamma, Beautiful.ai, Tome)</div>
+      <div class="comp-type">🤖 AI-Powered Presentation Creation | New threat category</div>
+      <div class="comp-section">
+        <div class="comp-section-title">Players & Pricing</div>
+        <ul style="font-size:0.83rem; padding-left:16px;">
+          <li><strong>Gamma:</strong> Free tier + $10–$20/month Pro | AI slides from text prompts</li>
+          <li><strong>Beautiful.ai:</strong> $12–$40/month | Smart templates</li>
+          <li><strong>Tome:</strong> Free + paid tiers | AI narrative presentations</li>
+          <li><strong>Canva AI:</strong> $15/month Pro | Templates + AI generation</li>
+          <li><strong>Microsoft Designer/Copilot:</strong> Bundled with M365 | Fastest growing threat</li>
+        </ul>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">The Real Threat</div>
+        <p style="font-size:0.83rem; color: #991b1b;"><strong>These tools cannot replace judgment.</strong> AI generates slides but doesn't know: What's the key insight? Is this the right chart type? Does the narrative flow logically? Does this meet what a McKinsey partner expects? The answer to AI tools is positioning AA as the source of the <em>judgment and framework</em> layer — not the mechanics layer.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">Real Risk</div>
+          <ul><li>"Why learn to build slides if AI can do it?" objection</li><li>Microsoft Copilot is bundled — zero friction</li><li>GenZ/younger workforce prefers AI tools</li></ul>
+        </div>
+        <div class="vs-col strengths">
+          <div class="vs-col-title">AA Counter-Positioning</div>
+          <ul><li>AI produces generic slides; consulting firms need structured thinking</li><li>Pyramid Principle/SCQA are judgment skills, not mechanical</li><li>AI can't tell you if your story is right</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- MCKINSEY / CORPORATE INTERNAL TRAINING -->
+    <div class="comp-card">
+      <div class="comp-name">MBB Internal Training Programs</div>
+      <div class="comp-type">🏦 McKinsey, BCG, Bain — Internal slide training programs</div>
+      <div class="comp-section">
+        <div class="comp-section-title">What They Do</div>
+        <p style="font-size:0.83rem;">Top consulting firms invest heavily in internal presentation training — but as noted in AA's origin story, "the training received at his firm lacked the detail he needed." MBB training is: (1) often rushed, (2) delivered by senior consultants informally, (3) not systematically structured for new hires.</p>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">Opportunity</div>
+        <p style="font-size:0.83rem;"><strong>Become the external provider MBB firms use.</strong> Position Analyst Academy as the supplement/replacement for inadequate internal training. "Get consulting firm training, without being at a consulting firm." This is the core value proposition — lean into it.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Indirect Competition</div>
+          <ul><li>Internal training exists</li><li>Peer learning within firms</li><li>Firm-specific style guides</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">AA Opportunity</div>
+          <ul><li>Better structured than internal training</li><li>Available before joining a firm</li><li>Accessible to boutique/mid-size firms</li><li>Consistent and repeatable</li></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRESENTATION GURU -->
+    <div class="comp-card">
+      <div class="comp-name">Presentation Guru</div>
+      <div class="comp-type">📰 Content/Resource Site | Presentation tips and resources</div>
+      <div class="comp-section">
+        <div class="comp-section-title">About</div>
+        <p style="font-size:0.83rem;">Primarily a content/media site with presentation tips, resources, and advice. More of a publication than a training provider. Produces articles and potentially links/reviews products in the space. Not a direct training competitor but competes for the same informational search queries.</p>
+      </div>
+      <div class="comp-section">
+        <div class="comp-section-title">SEO Overlap</div>
+        <p style="font-size:0.83rem;">Likely ranks for many of the same informational keywords Analyst Academy should target. Importance: being cited ahead of this type of publication in both Google and AI search results is important for brand authority.</p>
+      </div>
+      <div class="vs-row">
+        <div class="vs-col strengths">
+          <div class="vs-col-title">Their Edge</div>
+          <ul><li>High content volume</li><li>Informational SEO presence</li></ul>
+        </div>
+        <div class="vs-col weaknesses">
+          <div class="vs-col-title">AA Advantage</div>
+          <ul><li>Actual training product</li><li>Deeper expertise</li><li>Paul Moss as authority figure</li></ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ====================== PRICING ANALYSIS ====================== -->
+<div id="tab-pricing" class="tab-content">
+  <div class="section-header">Pricing & Revenue Model Analysis</div>
+  <p class="section-sub">Comprehensive pricing benchmarks and revenue model teardown</p>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">💰</div><h2>Individual Course Price Comparison</h2></div>
+    <div class="pricing-compare">
+      <div class="price-box highlight">
+        <div class="company">Analyst Academy</div>
+        <div class="price">$247–$297</div>
+        <div class="desc">Single course (self-paced, 4–6 hrs, 2-yr access)</div>
+      </div>
+      <div class="price-box">
+        <div class="company">Duarte Resonate®</div>
+        <div class="price">$395</div>
+        <div class="desc">On-demand, 4 hrs, 3-month access</div>
+      </div>
+      <div class="price-box">
+        <div class="company">Duarte Live Workshop</div>
+        <div class="price">$990</div>
+        <div class="desc">Live 2-day workshop (per person)</div>
+      </div>
+      <div class="price-box">
+        <div class="company">Duarte Slide Design</div>
+        <div class="price">$129</div>
+        <div class="desc">On-demand, 90 min, basic design</div>
+      </div>
+      <div class="price-box">
+        <div class="company">SWD Workshop</div>
+        <div class="price">$595</div>
+        <div class="desc">Half-day virtual public workshop</div>
+      </div>
+      <div class="price-box">
+        <div class="company">SWD 8-Week Course</div>
+        <div class="price">~$1,200</div>
+        <div class="desc">8-week cohort with books included</div>
+      </div>
+      <div class="price-box">
+        <div class="company">LinkedIn Learning</div>
+        <div class="price">$40/mo</div>
+        <div class="desc">Unlimited access subscription</div>
+      </div>
+      <div class="price-box">
+        <div class="company">Udemy (sale price)</div>
+        <div class="price">$10–$15</div>
+        <div class="desc">Regular sale pricing, no support</div>
+      </div>
+    </div>
+    <div class="callout callout-green" style="margin-top:16px;">
+      <h3>✅ Pricing Assessment: Well-Positioned</h3>
+      <p>Analyst Academy's $247–$297 pricing sits in the "premium but accessible" zone — far cheaper than Duarte live ($990) or SWD cohorts (~$1,200), while significantly more valuable than Udemy ($10–15). The 2-year access is more generous than Duarte's 3-month on-demand access. The bundle at $597 (was $997) is excellent perceived value.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">📊</div><h2>Live Training Price Comparison</h2></div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Provider</th><th>Format</th><th>Pricing</th><th>Includes</th></tr>
+        <tr>
+          <td><strong>Analyst Academy</strong></td>
+          <td>Half-day (4 hrs), virtual or onsite</td>
+          <td><span class="pill pill-green">$10,000+ (up to ~10)</span></td>
+          <td>Self-paced access, dashboard, travel, customization</td>
+        </tr>
+        <tr>
+          <td><strong>Duarte</strong></td>
+          <td>Full-day workshops, $990/person live</td>
+          <td><span class="pill pill-yellow">$990+/person</span></td>
+          <td>Workshop, facilitator, certificate</td>
+        </tr>
+        <tr>
+          <td><strong>Storytelling With Data</strong></td>
+          <td>Custom team workshops</td>
+          <td><span class="pill pill-blue">Custom (est. $8k–$20k)</span></td>
+          <td>Customized examples, books</td>
+        </tr>
+        <tr>
+          <td><strong>BrightCarbon</strong></td>
+          <td>Group PowerPoint training (half/full day)</td>
+          <td><span class="pill pill-gray">Custom / UK pricing</span></td>
+          <td>Visual storytelling, PowerPoint skills</td>
+        </tr>
+        <tr>
+          <td><strong>Think Outside the Slide</strong></td>
+          <td>Customized virtual training</td>
+          <td><span class="pill pill-gray">Custom (est. $2k–$8k)</span></td>
+          <td>Tailored virtual/hybrid sessions</td>
+        </tr>
+      </table>
+    </div>
+    <div class="callout callout-yellow" style="margin-top:16px;">
+      <h3>⚠️ Opportunity: Public Workshop at $595–$995</h3>
+      <p>There's a clear price gap between AA's $10,000 live training floor and the self-paced courses at $297. A public monthly workshop at $595–$795/person (10–20 people max) could generate $6,000–$16,000 per session with minimal marginal cost. SWD does this successfully at $595. With AA's 30,000 email subscribers, filling workshops should be feasible.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">📈</div><h2>Revenue Model Benchmarking</h2></div>
+    <div class="grid-2">
+      <div>
+        <h3 style="font-size:0.95rem; margin-bottom:14px;">Analyst Academy — Current Revenue Streams</h3>
+        <div class="revenue-bar">
+          <div class="revenue-bar-label"><span>Self-paced courses (individual)</span><span class="pill pill-green">Primary</span></div>
+          <div class="revenue-bar-fill"><div class="revenue-bar-inner" style="width:60%; background:#2563eb;"></div></div>
+        </div>
+        <div class="revenue-bar">
+          <div class="revenue-bar-label"><span>Live team training ($10k+)</span><span class="pill pill-blue">Strong</span></div>
+          <div class="revenue-bar-fill"><div class="revenue-bar-inner" style="width:30%; background:#10b981;"></div></div>
+        </div>
+        <div class="revenue-bar">
+          <div class="revenue-bar-label"><span>Team/bulk course licenses</span><span class="pill pill-yellow">Growing</span></div>
+          <div class="revenue-bar-fill"><div class="revenue-bar-inner" style="width:15%; background:#f59e0b;"></div></div>
+        </div>
+        <div class="revenue-bar">
+          <div class="revenue-bar-label"><span>SlideStart</span><span class="pill pill-gray">Unclear</span></div>
+          <div class="revenue-bar-fill"><div class="revenue-bar-inner" style="width:5%; background:#94a3b8;"></div></div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-size:0.95rem; margin-bottom:14px;">Revenue Streams to Add (Opportunity Gaps)</h3>
+        <div class="collapsible">
+          <div class="collapsible-header" onclick="toggleCollapse(this)" style="font-size:0.85rem;">
+            <span>🚀 Public Workshop Program ($595/person) — High priority</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="collapsible-body">
+            <p style="font-size:0.82rem;"><strong>Model:</strong> Monthly virtual workshops, max 20 attendees @ $595 = $11,900/month if sold out. 12 workshops/year = $143k+ potential. Low marginal cost after content development. SWD proves this model works at this price point.</p>
+          </div>
+        </div>
+        <div class="collapsible">
+          <div class="collapsible-header" onclick="toggleCollapse(this)" style="font-size:0.85rem;">
+            <span>📱 SlideStart Premium Subscription ($15/month) — Medium priority</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="collapsible-body">
+            <p style="font-size:0.82rem;"><strong>Model:</strong> Free tier: browse slides. Pro ($15/month): download + templates. Team ($49/month): brand kit + team access. 1,000 paying users = $15k+ MRR = $180k+ ARR. The user enthusiasm ("I love this site!") suggests conversion potential.</p>
+          </div>
+        </div>
+        <div class="collapsible">
+          <div class="collapsible-header" onclick="toggleCollapse(this)" style="font-size:0.85rem;">
+            <span>👥 Community Membership ($29–$49/month) — Medium priority</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="collapsible-body">
+            <p style="font-size:0.82rem;"><strong>Model:</strong> Monthly office hours, slide critique, templates, networking. 500 members @ $39/month = $19.5k MRR = $234k ARR. Platform options: Circle, Skool, Mighty Networks. Strong retention if community engagement is high.</p>
+          </div>
+        </div>
+        <div class="collapsible">
+          <div class="collapsible-header" onclick="toggleCollapse(this)" style="font-size:0.85rem;">
+            <span>🎓 University/MBA Licensing ($5k–$20k/institution) — Strategic priority</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="collapsible-body">
+            <p style="font-size:0.82rem;"><strong>Model:</strong> Annual license for MBA program cohort access. 10 institutions @ $10k = $100k ARR. Natural path: Wharton consulting club → other MBA programs. High prestige signal that drives individual and corporate sales downstream.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🔢</div><h2>Revenue Estimation (Current Business)</h2></div>
+    <p style="font-size:0.82rem; color:var(--muted); margin-bottom:16px;"><em>These are estimates based on publicly available data (student counts, pricing). Not audited figures.</em></p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Stream</th><th>Volume Estimate</th><th>Avg Price</th><th>Annual Revenue Est.</th></tr>
+        <tr>
+          <td>Presentation Storytelling course</td>
+          <td>~800–1,200 new students/year</td>
+          <td>~$297 (some buy bundle)</td>
+          <td class="pill pill-green">~$300k–$450k</td>
+        </tr>
+        <tr>
+          <td>Advanced PowerPoint course</td>
+          <td>~600–900 new students/year</td>
+          <td>~$247</td>
+          <td class="pill pill-green">~$150k–$220k</td>
+        </tr>
+        <tr>
+          <td>Data Viz course</td>
+          <td>~300–500 new students/year</td>
+          <td>~$247</td>
+          <td class="pill pill-blue">~$75k–$125k</td>
+        </tr>
+        <tr>
+          <td>Bundle upgrades</td>
+          <td>~20% of students buy bundle</td>
+          <td>$597–$897</td>
+          <td class="pill pill-green">Additional 40%+ on base</td>
+        </tr>
+        <tr>
+          <td>Live team training</td>
+          <td>~15–30 sessions/year (est.)</td>
+          <td>~$12k–$15k avg</td>
+          <td class="pill pill-purple">~$180k–$450k</td>
+        </tr>
+        <tr>
+          <td>Team course licenses</td>
+          <td>Unknown</td>
+          <td>Bulk pricing</td>
+          <td class="pill pill-gray">Additional line item</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><strong>TOTAL ESTIMATE</strong></td>
+          <td colspan="2"></td>
+          <td><strong>~$700k–$1.5M ARR (est.)</strong></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== SEO INTELLIGENCE ====================== -->
+<div id="tab-seo" class="tab-content">
+  <div class="section-header">SEO Keyword Intelligence</div>
+  <p class="section-sub">High-value keyword targets, content gaps, and on-page optimization recommendations</p>
+
+  <div class="callout callout-blue">
+    <h3>🎯 SEO Strategy Context</h3>
+    <p>Analyst Academy's content niche sits at the intersection of several high-demand keyword clusters: PowerPoint skills, consulting methodology, business storytelling, and data visualization. The key opportunity is that many of the highest-value keywords (e.g., "McKinsey slide structure," "Pyramid Principle presentation," "MECE framework slides") have moderate competition but very high commercial intent from the exact target audience.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🔑</div><h2>Priority Keyword Targets</h2></div>
+    <p style="font-size:0.82rem; color:var(--muted); margin-bottom:12px;">Organized by priority tier. Volume estimates based on niche research and search trends.</p>
+    <div class="table-wrap">
+      <table>
+        <tr>
+          <th>Keyword</th>
+          <th>Intent</th>
+          <th>Estimated Volume</th>
+          <th>Difficulty</th>
+          <th>AA Fit</th>
+          <th>Priority</th>
+        </tr>
+        <tr class="kw-priority-1">
+          <td><strong>McKinsey slide template</strong></td>
+          <td>Commercial</td>
+          <td>8,000–15,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-red">🔥 Tier 1</span></td>
+        </tr>
+        <tr class="kw-priority-1">
+          <td><strong>PowerPoint shortcuts for consultants</strong></td>
+          <td>Commercial</td>
+          <td>3,000–6,000/mo</td>
+          <td>Low</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-red">🔥 Tier 1</span></td>
+        </tr>
+        <tr class="kw-priority-1">
+          <td><strong>pyramid principle presentation</strong></td>
+          <td>Informational/Commercial</td>
+          <td>5,000–10,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-red">🔥 Tier 1</span></td>
+        </tr>
+        <tr class="kw-priority-1">
+          <td><strong>SCQA framework presentation</strong></td>
+          <td>Informational/Commercial</td>
+          <td>1,000–3,000/mo</td>
+          <td>Low</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-red">🔥 Tier 1</span></td>
+        </tr>
+        <tr class="kw-priority-1">
+          <td><strong>consulting presentation course</strong></td>
+          <td>Commercial</td>
+          <td>2,000–5,000/mo</td>
+          <td>Low-Medium</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-red">🔥 Tier 1</span></td>
+        </tr>
+        <tr class="kw-priority-2">
+          <td><strong>how to make a consulting slide</strong></td>
+          <td>Informational</td>
+          <td>2,000–4,000/mo</td>
+          <td>Low</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-blue">Tier 2</span></td>
+        </tr>
+        <tr class="kw-priority-2">
+          <td><strong>data visualization for business presentations</strong></td>
+          <td>Informational/Commercial</td>
+          <td>3,000–6,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-blue">Tier 2</span></td>
+        </tr>
+        <tr class="kw-priority-2">
+          <td><strong>waterfall chart PowerPoint</strong></td>
+          <td>Informational/Commercial</td>
+          <td>4,000–8,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★☆</td>
+          <td><span class="pill pill-blue">Tier 2</span></td>
+        </tr>
+        <tr class="kw-priority-2">
+          <td><strong>Mekko chart PowerPoint</strong></td>
+          <td>Informational</td>
+          <td>1,000–2,000/mo</td>
+          <td>Low</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-blue">Tier 2</span></td>
+        </tr>
+        <tr class="kw-priority-2">
+          <td><strong>executive presentation design</strong></td>
+          <td>Commercial</td>
+          <td>2,000–5,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★☆</td>
+          <td><span class="pill pill-blue">Tier 2</span></td>
+        </tr>
+        <tr class="kw-priority-2">
+          <td><strong>business storytelling framework</strong></td>
+          <td>Informational/Commercial</td>
+          <td>2,000–5,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-blue">Tier 2</span></td>
+        </tr>
+        <tr class="kw-priority-2">
+          <td><strong>ghost deck consulting</strong></td>
+          <td>Informational</td>
+          <td>500–1,500/mo</td>
+          <td>Very Low</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-blue">Tier 2</span></td>
+        </tr>
+        <tr class="kw-priority-3">
+          <td><strong>best PowerPoint shortcuts 2024</strong></td>
+          <td>Informational</td>
+          <td>5,000–10,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★☆</td>
+          <td><span class="pill pill-green">Tier 3</span></td>
+        </tr>
+        <tr class="kw-priority-3">
+          <td><strong>how to present data effectively</strong></td>
+          <td>Informational</td>
+          <td>5,000–10,000/mo</td>
+          <td>High</td>
+          <td>★★★★☆</td>
+          <td><span class="pill pill-green">Tier 3</span></td>
+        </tr>
+        <tr class="kw-priority-3">
+          <td><strong>consulting slide structure</strong></td>
+          <td>Informational</td>
+          <td>1,000–3,000/mo</td>
+          <td>Low-Medium</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-green">Tier 3</span></td>
+        </tr>
+        <tr class="kw-priority-3">
+          <td><strong>slide title best practices</strong></td>
+          <td>Informational</td>
+          <td>1,000–2,000/mo</td>
+          <td>Low</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-green">Tier 3</span></td>
+        </tr>
+        <tr class="kw-priority-3">
+          <td><strong>PowerPoint slide master tutorial</strong></td>
+          <td>Informational</td>
+          <td>3,000–6,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★☆</td>
+          <td><span class="pill pill-green">Tier 3</span></td>
+        </tr>
+        <tr class="kw-priority-3">
+          <td><strong>MECE framework consulting</strong></td>
+          <td>Informational</td>
+          <td>2,000–4,000/mo</td>
+          <td>Medium</td>
+          <td>★★★★★</td>
+          <td><span class="pill pill-green">Tier 3</span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🕳️</div><h2>Content Gaps — High Value Topics AA Should Own</h2></div>
+    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">Topics where AA's expertise is perfectly matched but comprehensive content likely doesn't exist yet (or is thin):</p>
+    
+    <div class="grid-2">
+      <div>
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">📋 Methodology/Framework Definitions (High AI Citation Potential)</h4>
+        <div>
+          <span class="kw-chip high">Pyramid Principle — complete guide</span>
+          <span class="kw-chip high">SCQA framework explained</span>
+          <span class="kw-chip high">MECE principle guide</span>
+          <span class="kw-chip high">McKinsey 7S framework slides</span>
+          <span class="kw-chip high">Ghost deck: what it is + how to build</span>
+          <span class="kw-chip med">Action title vs. descriptive title</span>
+          <span class="kw-chip med">So-what analysis in presentations</span>
+          <span class="kw-chip med">Executive summary slide structure</span>
+          <span class="kw-chip med">Appendix slides best practices</span>
+        </div>
+      </div>
+      <div>
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">📊 Chart Types & Data Viz (High Search Volume)</h4>
+        <div>
+          <span class="kw-chip high">Waterfall chart: when to use + examples</span>
+          <span class="kw-chip high">Mekko chart: complete guide</span>
+          <span class="kw-chip med">Tornado chart consulting</span>
+          <span class="kw-chip med">Bubble chart business presentation</span>
+          <span class="kw-chip med">Best chart type for market share</span>
+          <span class="kw-chip med">Scatter plot interpretation</span>
+          <span class="kw-chip med">How to fix misleading charts</span>
+          <span class="kw-chip">Dual-axis chart best practices</span>
+        </div>
+      </div>
+      <div>
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">🎯 Career/Industry Specific (Commercial Intent)</h4>
+        <div>
+          <span class="kw-chip high">How consulting firms structure presentations</span>
+          <span class="kw-chip high">McKinsey vs BCG slide style differences</span>
+          <span class="kw-chip high">Investment banking pitch deck guide</span>
+          <span class="kw-chip med">Strategy presentation for C-suite</span>
+          <span class="kw-chip med">Government briefing slide structure</span>
+          <span class="kw-chip med">Startup pitch deck consulting style</span>
+          <span class="kw-chip">Analyst day presentation best practices</span>
+        </div>
+      </div>
+      <div>
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">⚡ Tool/Technique Tutorials (How-To Traffic)</h4>
+        <div>
+          <span class="kw-chip high">Top 50 PowerPoint shortcuts — ultimate list</span>
+          <span class="kw-chip high">PowerPoint align objects guide</span>
+          <span class="kw-chip med">How to use slide master effectively</span>
+          <span class="kw-chip med">PowerPoint vs Google Slides for consulting</span>
+          <span class="kw-chip med">Think-Cell vs Ampler vs native PPT</span>
+          <span class="kw-chip med">How to build a Gantt chart in PowerPoint</span>
+          <span class="kw-chip">Auto-fit text PowerPoint tricks</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">⚙️</div><h2>On-Page SEO Recommendations</h2></div>
+    <div class="rec-grid">
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN (1–2 weeks)</div>
+        <h4>Schema Markup on All Content</h4>
+        <p>Add HowTo, FAQPage, Course, and Article schema to course pages and blog posts. FAQPage schema in particular gets picked up by Google AI Overviews and creates rich snippets.</p>
+      </div>
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN (1–2 weeks)</div>
+        <h4>Add FAQ Sections to All Course Pages</h4>
+        <p>Course pages already have FAQs — but they should be expanded and marked up with FAQPage schema. Questions like "What is the Pyramid Principle?" and "How do McKinsey consultants structure slides?" directly answer what AI tools are asked.</p>
+      </div>
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM (1–3 months)</div>
+        <h4>Comprehensive Definition Pages for Key Concepts</h4>
+        <p>Create standalone authoritative definition pages for: Pyramid Principle, SCQA Framework, MECE, Ghost Deck, Action Title, Waterfall Chart, Mekko Chart. These become the "sources" that AI tools cite.</p>
+      </div>
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM (1–3 months)</div>
+        <h4>Build "Best X for Consultants" Content</h4>
+        <p>Research shows "best" content gets 7% of AI traffic. Create: "Best PowerPoint Add-ins for Consultants," "Best Chart Types for Business Presentations," "Best Resources for Learning Consulting Presentations."</p>
+      </div>
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC (3–6 months)</div>
+        <h4>The Definitive Consulting Presentation Guide</h4>
+        <p>Build a mega-guide (10,000+ words) on "The Complete Guide to Building McKinsey-Style Presentations" covering every aspect from structure to design to data viz. This becomes the cornerstone SEO asset and AI citation magnet.</p>
+      </div>
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC (3–6 months)</div>
+        <h4>Statistics and Research Aggregation</h4>
+        <p>Pages with statistics get 30–40% higher AI visibility. Create data-rich posts: "X Statistics About Business Presentations in [Year]," backed by original surveys/data where possible. Become the go-to source for presentation industry data.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== AI SEARCH ====================== -->
+<div id="tab-ai" class="tab-content">
+  <div class="section-header">AI Search Optimization (GEO/AEO)</div>
+  <p class="section-sub">How to get cited in ChatGPT, Perplexity, Google AI Overviews, and Claude — the new frontier for visibility</p>
+
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="value">16%</div>
+      <div class="label">Searches Showing AI Overviews</div>
+      <div class="sublabel">Up from &lt;8% in March 2025 — rapidly growing</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">34.5%</div>
+      <div class="label">CTR Drop With AI Overview</div>
+      <div class="sublabel">For top-ranked pages (Ahrefs research)</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">30–40%</div>
+      <div class="label">Higher AI Visibility</div>
+      <div class="sublabel">For pages with quotes & statistics</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">7%</div>
+      <div class="label">AI Traffic to "Best" Content</div>
+      <div class="sublabel">Highest-performing content type</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">23x</div>
+      <div class="label">Better Conversion Rate</div>
+      <div class="sublabel">AI-driven traffic vs traditional search (Ahrefs data)</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">97%</div>
+      <div class="label">AI Overview Queries = Informational</div>
+      <div class="sublabel">The exact type of content AA produces</div>
+    </div>
+  </div>
+
+  <div class="callout callout-yellow">
+    <h3>⚠️ The Critical Opportunity Window</h3>
+    <p>AI search is still in early innings. The brands that become the "go-to definitions" for consulting presentation concepts <em>right now</em> will be cited in AI answers for years. Just as Wikipedia became a dominant AI training source, content that becomes the authoritative reference for concepts like "Pyramid Principle," "SCQA framework," and "McKinsey slide structure" will gain compounding AI citation advantage. <strong>The window to become the default AI source for these topics is 12–18 months.</strong></p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🤖</div><h2>What Makes Content Get Cited by AI Tools</h2></div>
+    <div class="ai-framework">
+      <div class="ai-card">
+        <h4>📖 Authoritative Definitions</h4>
+        <ul>
+          <li>AI tools love clear, authoritative "X is..." definitions</li>
+          <li>Create dedicated glossary pages for every framework</li>
+          <li>Use Definition schema markup</li>
+          <li>Include "the concept of X means..." formulations that AI can extract</li>
+        </ul>
+      </div>
+      <div class="ai-card">
+        <h4>📊 Statistics & Data Points</h4>
+        <ul>
+          <li>Pages with statistics get 30–40% more AI citations (research-backed)</li>
+          <li>Include specific numbers: "consultants use X framework in 80% of cases"</li>
+          <li>Cite credible sources (McKinsey publications, academic studies)</li>
+          <li>Create original survey data — becomes citable for others</li>
+        </ul>
+      </div>
+      <div class="ai-card">
+        <h4>💬 Quotable Passages</h4>
+        <ul>
+          <li>Write in clearly quotable sentences</li>
+          <li>Short, crisp definitions work best</li>
+          <li>Expert quotes attributed to Paul Moss by name build person entity</li>
+          <li>Pull quotes boxes in blog posts improve extractability</li>
+        </ul>
+      </div>
+      <div class="ai-card">
+        <h4>🏗️ Content Structure</h4>
+        <ul>
+          <li>H2/H3 headings that match natural questions</li>
+          <li>FAQ sections with Q&A format (AI loves answering questions)</li>
+          <li>Numbered lists for frameworks and steps</li>
+          <li>Tables for comparisons (AI Overviews often include tables)</li>
+        </ul>
+      </div>
+      <div class="ai-card">
+        <h4>🔗 Brand Mentions Across Web</h4>
+        <ul>
+          <li>Unlinked brand mentions matter for AI (not just backlinks)</li>
+          <li>Get mentioned in "best" lists on other sites</li>
+          <li>PR and media coverage signals authority</li>
+          <li>Reddit/Quora presence — these sites heavily cited by AI</li>
+        </ul>
+      </div>
+      <div class="ai-card">
+        <h4>⚡ Technical Factors</h4>
+        <ul>
+          <li>Server-side rendering — AI crawlers struggle with JS-heavy sites</li>
+          <li>Fresh content updated regularly (date stamps visible)</li>
+          <li>Fast page load speeds matter for crawlability</li>
+          <li>Allow AI crawlers in robots.txt (don't block GPTBot, PerplexityBot)</li>
+        </ul>
+      </div>
+      <div class="ai-card">
+        <h4>🌐 Off-Site Authority</h4>
+        <ul>
+          <li>Wikipedia presence boosts AI citation probability significantly</li>
+          <li>YouTube videos appear in AI answers — publish concept explainers</li>
+          <li>Reddit/LinkedIn post presence on these topics</li>
+          <li>Industry directory listings and award mentions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🗺️</div><h2>AI Search Optimization Roadmap for Analyst Academy</h2></div>
+    
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>Phase 1: Foundation (Months 1–3) — Build the Citation Architecture</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <h4 style="margin-bottom:8px;">Core Actions:</h4>
+        <ul style="font-size:0.85rem; padding-left:20px;">
+          <li><strong>Create authoritative definition pages</strong> for: Pyramid Principle, SCQA Framework, MECE Principle, Ghost Deck, Action Title vs Descriptive Title, Waterfall Chart, Mekko Chart. Each page should be 1,500–3,000 words with clear definitions, examples, and statistics.</li>
+          <li><strong>Add FAQPage schema</strong> to every course page and all new blog posts. Use questions that match what people ask AI tools: "What is the Pyramid Principle?", "How do McKinsey consultants structure slides?", "What's the difference between SCQA and Pyramid Principle?"</li>
+          <li><strong>Enable all AI crawlers</strong> in robots.txt: GPTBot (ChatGPT), ClaudeBot (Anthropic), PerplexityBot, GoogleOther (AI training).</li>
+          <li><strong>Add Article and Author schema</strong> to all blog posts, tagging Paul Moss as the named expert author with credentials clearly marked up.</li>
+          <li><strong>Build a statistics/data page</strong>: "Presentation Statistics Every Business Professional Should Know" — aggregating research on presentation effectiveness, PowerPoint usage, consulting industry trends.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>Phase 2: Authority Building (Months 3–6) — Become the Cited Source</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <h4 style="margin-bottom:8px;">Core Actions:</h4>
+        <ul style="font-size:0.85rem; padding-left:20px;">
+          <li><strong>Publish the Definitive Consulting Presentation Guide</strong> (10,000+ word cornerstone piece). This single asset, if well-executed and promoted, will become the most-cited source for consulting presentation questions in AI tools.</li>
+          <li><strong>Build Reddit presence</strong>: Paul or team should actively participate in r/consulting, r/MBA, r/financialcareers, r/povertyfinance answering presentation questions. Reddit is one of the top-cited platforms in AI responses.</li>
+          <li><strong>Get listed in "best" articles</strong>: Reach out to industry blogs, consulting prep sites, and career sites to be included in "Best Presentation Courses" and "Best Resources for Consultants" roundups. These unlinked brand mentions matter for AI.</li>
+          <li><strong>Create YouTube concept explainers</strong> for each major framework (Pyramid Principle in 3 minutes, SCQA explained, etc.). YouTube is heavily cited in AI responses and each video also drives traffic back to the course.</li>
+          <li><strong>Original research/survey</strong>: Run a survey among 500+ professionals: "How Business Presentations Are Actually Built" — the data becomes citable by media and AI tools.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="collapsible">
+      <div class="collapsible-header" onclick="toggleCollapse(this)">
+        <span>Phase 3: Scale & Dominate (Months 6–12) — Compounding Citation Authority</span>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="collapsible-body">
+        <h4 style="margin-bottom:8px;">Core Actions:</h4>
+        <ul style="font-size:0.85rem; padding-left:20px;">
+          <li><strong>Pursue Wikipedia presence</strong>: Create or expand Wikipedia articles for the Pyramid Principle (McKinsey/Minto framework), the SCQA framework, and potentially "consulting presentation design" as a discipline. Wikipedia is among the highest-cited sources in AI training data.</li>
+          <li><strong>Publish an annual "State of Business Presentations" report</strong> — generates press coverage, backlinks, social sharing, and becomes annual AI-cited reference material.</li>
+          <li><strong>Podcast appearances</strong>: Pitch Paul Moss to consulting prep podcasts, MBA programs, business communication podcasts. Each mention in a podcast transcript (which gets indexed) adds to unlinked brand mentions.</li>
+          <li><strong>Course/certification partnerships</strong>: Get Analyst Academy CPP listed on certification comparison sites, LinkedIn Skills taxonomy, and educational directories — all sources AI tools pull from.</li>
+          <li><strong>Monitor AI citations</strong>: Use Semrush AI Visibility Toolkit or similar to track how often AA is cited in AI responses to presentation-related queries. Set baseline and track improvement.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">💡</div><h2>Sample AI-Optimized Content Structure</h2></div>
+    <p style="font-size:0.85rem; color:var(--muted); margin-bottom:16px;">How to structure the "Pyramid Principle" definition page for maximum AI citation:</p>
+    <div style="background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:20px; font-size:0.85rem;">
+      <div style="border-left:3px solid var(--accent); padding-left:12px; margin-bottom:12px;">
+        <strong>H1: The Pyramid Principle: The Framework McKinsey Consultants Use to Structure Presentations</strong>
+      </div>
+      <div style="border-left:3px solid #10b981; padding-left:12px; margin-bottom:12px;">
+        <strong>Opening paragraph with crisp definition:</strong> "The Pyramid Principle is a communication framework developed by Barbara Minto at McKinsey & Company that structures arguments and presentations with the main conclusion first, followed by supporting evidence. It is the foundational method used by top consulting firms including McKinsey, BCG, and Bain to build client presentations."
+      </div>
+      <div style="border-left:3px solid #f59e0b; padding-left:12px; margin-bottom:12px;">
+        <strong>Statistics block:</strong> "According to [source], over 90% of top consulting firms use the Pyramid Principle or a derivative framework for client presentations. McKinsey trained over X professionals using this methodology since [year]."
+      </div>
+      <div style="border-left:3px solid #8b5cf6; padding-left:12px; margin-bottom:12px;">
+        <strong>FAQ section (with FAQPage schema):</strong>
+        <br>Q: What is the Pyramid Principle?
+        <br>Q: Who invented the Pyramid Principle?
+        <br>Q: How do I use the Pyramid Principle in a presentation?
+        <br>Q: What is the difference between the Pyramid Principle and SCQA?
+        <br>Q: Do McKinsey consultants actually use the Pyramid Principle?
+      </div>
+      <div style="border-left:3px solid #ec4899; padding-left:12px;">
+        <strong>Expert quote:</strong> "According to Paul Moss, former management consultant and founder of Analyst Academy: 'The Pyramid Principle is the single most impactful framework I learned in consulting — it changes how you think about communication at a fundamental level.'"
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================== CONTENT CALENDAR ====================== -->
+<div id="tab-content" class="tab-content">
+  <div class="section-header">Content Calendar — 52-Week Plan</div>
+  <p class="section-sub">Prioritized content topics aligned with SEO, AI citation, and course conversion goals</p>
+
+  <div class="callout callout-blue">
+    <h3>📋 Content Strategy Framework</h3>
+    <p>Content falls into four buckets: <strong>(1) Authority anchors</strong> — long-form definitive guides; <strong>(2) SEO traffic drivers</strong> — targeted how-to content; <strong>(3) AI citation magnets</strong> — definition/framework pages; <strong>(4) Conversion content</strong> — course-adjacent content that drives enrollment. The calendar below mixes all four types across 52 weeks with Q1 front-loaded for foundation-building.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">📅</div><h2>Q1: Foundation Quarter (Authority & AI Optimization)</h2></div>
+    
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 1–2: The Pyramid Principle — Complete Guide (Cornerstone)</div>
+      <div class="cal-item-meta">🔥 Tier 1 Priority | 3,000+ words | FAQPage schema | AI citation target</div>
+      <p style="font-size:0.82rem; margin-top:6px;">Full authoritative guide to the Pyramid Principle: history, how it works, examples from consulting, how to apply to slides. Becomes the definitive AA resource for this topic. Supports both course sales and AI citations.</p>
+    </div>
+    
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 3: SCQA Framework — Complete Definition Page</div>
+      <div class="cal-item-meta">🔥 Tier 1 Priority | 2,000+ words | Definition schema | Low competition keyword</div>
+      <p style="font-size:0.82rem; margin-top:6px;">SCQA = Situation, Complication, Question, Answer. Used at McKinsey and across consulting. Define it, show examples, explain when to use SCQA vs. Pyramid Principle. Very low competition, high relevance.</p>
+    </div>
+    
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 4: Ghost Deck — What It Is and How to Build One</div>
+      <div class="cal-item-meta">🔥 Tier 1 Priority | 1,500+ words | Very low competition</div>
+      <p style="font-size:0.82rem; margin-top:6px;">"Ghost deck" is a consulting-specific term for a presentation outline/wireframe. Very few good resources exist on this. AA teaching this in the Advanced PowerPoint course makes this natural content. Strong AI citation potential.</p>
+    </div>
+    
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 5–6: McKinsey-Style Slides — The Complete Guide</div>
+      <div class="cal-item-meta">🔥 Tier 1 Priority | 5,000+ words | "McKinsey slide" gets 8k–15k monthly searches</div>
+      <p style="font-size:0.82rem; margin-top:6px;">The definitive resource on what McKinsey-style slides look like, why they work, how to build them. Includes: action titles, one idea per slide, clean design principles, chart selection, annotation. This is THE highest-priority content asset for Analyst Academy.</p>
+    </div>
+
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 7: Waterfall Chart — How to Build and Use in PowerPoint</div>
+      <div class="cal-item-meta">🔥 Tier 1 Priority | 4,000–8,000 monthly searches | Tutorial + consulting context</div>
+      <p style="font-size:0.82rem; margin-top:6px;">Waterfall charts are ubiquitous in consulting/finance but many people don't know how to build them correctly in PowerPoint. Tutorial + when to use + examples = drives course interest.</p>
+    </div>
+
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 8: Mekko Chart (Marimekko) — Complete Guide for Business</div>
+      <div class="cal-item-meta">⭐ Tier 2 | 1,000–2,000 searches | Very low competition | Consulting-specific</div>
+      <p style="font-size:0.82rem; margin-top:6px;">Mekko charts are almost exclusively used in consulting and investment banking. Very few good resources. Position AA as the authoritative source.</p>
+    </div>
+
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 9: MECE Principle — The Consultant's Framework Guide</div>
+      <div class="cal-item-meta">⭐ Tier 2 | 2,000–4,000 searches | Framework definition page</div>
+    </div>
+
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 10: Top 50 PowerPoint Shortcuts for Consultants (Updated)</div>
+      <div class="cal-item-meta">⭐ Tier 2 | 3,000–6,000 searches | Free lead magnet repurposed as content</div>
+    </div>
+
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 11: How to Structure a Consulting Presentation — Step by Step</div>
+      <div class="cal-item-meta">⭐ Tier 2 | Commercial intent | Directly supports course sales</div>
+    </div>
+
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 12: Presentation Statistics for 2026 — Research Roundup</div>
+      <div class="cal-item-meta">📊 AI Citation | Statistics page | Linkable asset | Gets cited by others</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">📅</div><h2>Q2: Traffic & Conversion Quarter</h2></div>
+    
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 13–14: The Definitive Guide to Business Data Visualization</div>
+      <div class="cal-item-meta">🔥 Cornerstone | Supports Data Viz course | 5,000+ monthly searches</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 15: How to Use Slide Master in PowerPoint — Complete Tutorial</div>
+      <div class="cal-item-meta">⭐ Tier 2 | 3,000–6,000 searches | Practical tutorial</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 16: Choosing the Right Chart Type — Decision Framework</div>
+      <div class="cal-item-meta">⭐ Tier 2 | High commercial intent | Interactive chart-type selector potential</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 17: McKinsey vs. BCG Presentation Style — Key Differences</div>
+      <div class="cal-item-meta">📊 Comparison content (4.88% AI traffic) | High curiosity/shareability</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 18: Executive Summary Slide — How to Write and Design One</div>
+      <div class="cal-item-meta">⭐ Tier 2 | High intent | Used in corporate settings</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Week 19: How to Give a Presentation to the C-Suite (With Slide Examples)</div>
+      <div class="cal-item-meta">Tier 3 | Broad audience | Good for social sharing</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Week 20: Investment Banking vs. Consulting Presentation Style</div>
+      <div class="cal-item-meta">Adjacent audience | Expands reach to IB professionals</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Week 21: How to Write Action-Oriented Slide Titles</div>
+      <div class="cal-item-meta">Tier 3 | Practical technique | Links to course content</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 22: PowerPoint vs. Google Slides for Consultants — Which to Use?</div>
+      <div class="cal-item-meta">Comparison content | High search intent | 2,000–5,000 searches</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 23: Best PowerPoint Add-ins for Consultants and Analysts</div>
+      <div class="cal-item-meta">⭐ "Best X" content (7% AI traffic) | Commercial intent | Tool recommendation</div>
+    </div>
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 24–26: "State of Business Presentations 2026" Annual Report</div>
+      <div class="cal-item-meta">🔥 Original research | Annual PR asset | Highly linkable | AI citation gold</div>
+      <p style="font-size:0.82rem; margin-top:6px;">Survey 500+ business professionals. Questions: How many presentations do you make per week? What tools do you use? What's hardest about building presentations? This data gets cited by others and becomes a recurring annual report.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">📅</div><h2>Q3 & Q4: Scale and Expand</h2></div>
+    
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 27–28: The Complete Guide to Pitch Deck Design (Startup Founders)</div>
+      <div class="cal-item-meta">🔥 New audience | High search volume | Bridge to new customer segment</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 29: How to Use AI Tools (Gamma, Copilot) for Consulting Presentations</div>
+      <div class="cal-item-meta">Current trend | Counter-positioning | "AI can't replace judgment"</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 30: 5 Presentation Mistakes Consultants Actually Make (and How to Fix Them)</div>
+      <div class="cal-item-meta">Listicle format | Highly shareable | Drives course awareness</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Week 31: Before & After Slide Makeovers — 10 Real Examples</div>
+      <div class="cal-item-meta">Visual content | Highly shareable on LinkedIn | Direct product demonstration</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 32: How Big 4 Consulting Firms Train Their Analysts</div>
+      <div class="cal-item-meta">Curiosity content | Supports AA positioning | Good for organic social</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 33: The Complete PowerPoint Efficiency Guide for Busy Professionals</div>
+      <div class="cal-item-meta">⭐ Broad appeal | Supports Advanced PowerPoint course</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Weeks 34–36: Case Studies — How Fortune 500 Teams Improved Presentations</div>
+      <div class="cal-item-meta">Social proof | Enterprise sales support | 3 detailed case studies</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 37: Scatter Plot vs. Bubble Chart — When to Use Which</div>
+      <div class="cal-item-meta">Chart comparison | Supports data viz course</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 38: Appendix Slides — Best Practices for Consulting Presentations</div>
+      <div class="cal-item-meta">Consulting-specific | Low competition | Natural for AA audience</div>
+    </div>
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 39–40: "The Complete Course on Consulting Presentations" Mega Guide</div>
+      <div class="cal-item-meta">🔥 15,000+ word super-resource | Becomes primary organic traffic driver</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Week 41: How to Present to Private Equity Investors</div>
+      <div class="cal-item-meta">Adjacent audience | PE is consulting-adjacent</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 42: Storytelling Frameworks for Business (Beyond Pyramid Principle)</div>
+      <div class="cal-item-meta">Comprehensive framework overview | SEO + AI opportunity</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Weeks 43–44: "2027 Planning" — Presentations Trends to Watch</div>
+      <div class="cal-item-meta">Evergreen annual content | Gets refreshed each year</div>
+    </div>
+    <div class="cal-item medium">
+      <div class="cal-item-title">Week 45: How to Build a Gantt Chart in PowerPoint (Consulting Style)</div>
+      <div class="cal-item-meta">Tutorial content | Practical skill | Links to Advanced PPT course</div>
+    </div>
+    <div class="cal-item high">
+      <div class="cal-item-title">Week 46: Analyst Academy Year-in-Review + 2027 Predictions</div>
+      <div class="cal-item-meta">Brand building | PR potential | Community content</div>
+    </div>
+    <div class="cal-item low">
+      <div class="cal-item-title">Weeks 47–52: Holiday season content refresh + SEO updates to existing posts</div>
+      <div class="cal-item-meta">Update high-performing posts | Add statistics | Refresh schemas</div>
+    </div>
+  </div>
+
+  <div class="callout callout-green">
+    <h3>✅ Content Production Tips for Analyst Academy</h3>
+    <p><strong>Video-first:</strong> Given Paul's YouTube presence, create video versions of every major piece. YouTube transcripts get indexed and cited. <strong>Repurpose aggressively:</strong> Each blog post → LinkedIn post → YouTube video → short clips → email newsletter. <strong>FAQ first:</strong> For every article, write 5–10 FAQs first — they guide the article structure and automatically create schema markup candidates.</p>
+  </div>
+</div>
+
+<!-- ====================== RECOMMENDATIONS ====================== -->
+<div id="tab-recs" class="tab-content">
+  <div class="section-header">Strategic Recommendations</div>
+  <p class="section-sub">Prioritized action items organized by time horizon and impact</p>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">⚡</div><h2>Quick Wins (0–30 days)</h2></div>
+    <div class="rec-grid">
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN</div>
+        <h4>1. Add FAQPage Schema to All Course Pages</h4>
+        <p>Your course pages already have FAQ sections. Add FAQPage JSON-LD schema markup. Takes 2–4 hours and immediately qualifies pages for rich snippets and AI Overview inclusion.</p>
+      </div>
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN</div>
+        <h4>2. Update robots.txt to Allow AI Crawlers</h4>
+        <p>Explicitly allow GPTBot, ClaudeBot, PerplexityBot in robots.txt. Many sites accidentally block these. Takes 15 minutes. Immediate impact on AI training data inclusion.</p>
+      </div>
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN</div>
+        <h4>3. Publish Ghost Deck Article</h4>
+        <p>"What is a Ghost Deck? How Consultants Build Presentation Outlines" — this term is directly taught in the course, has very low competition, and strong AI citation potential. 1,500 words, 1 day to write.</p>
+      </div>
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN</div>
+        <h4>4. Add Author Schema (Paul Moss) to All Content</h4>
+        <p>Add Person and Author schema markup tagging Paul Moss with his credentials (Wharton MBA, management consultant). This builds Paul's entity authority for AI tools to recognize him as an expert in this space.</p>
+      </div>
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN</div>
+        <h4>5. Create a "Best" Resources Page for Consultants</h4>
+        <p>"Best Resources for New Management Consultants" page that naturally includes AA courses. This "best" format is the #1 content type for AI citation traffic (7% share). Also drives inbound links from consulting prep communities.</p>
+      </div>
+      <div class="rec-card quick">
+        <div class="rec-tag" style="color:#166534;">⚡ QUICK WIN</div>
+        <h4>6. Pitch SlideStart for Freemium Testing</h4>
+        <p>Add a simple "Pro" upsell CTA to SlideStart — even just an email capture for "unlock download access." Measure conversion rate from free browser to email capture to gauge monetization potential before building full paywall.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">📅</div><h2>Medium-Term Priorities (1–6 months)</h2></div>
+    <div class="rec-grid">
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM</div>
+        <h4>7. Publish the McKinsey Slides Cornerstone Guide</h4>
+        <p>The single highest-priority content investment: "The Complete Guide to McKinsey-Style Slides" (5,000+ words). This targets 8,000–15,000 monthly searches and will become the primary AI citation source for this topic. 2–3 weeks of focused writing, but massive long-term payoff.</p>
+      </div>
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM</div>
+        <h4>8. Launch Monthly Public Workshop ($595/person)</h4>
+        <p>Model proven by Storytelling With Data ($595/half-day). With 30,000 email subscribers, filling 15–20 spots per month should be achievable. Revenue potential: $10,000–$12,000/month from one monthly workshop. Minimal marginal cost after initial content creation.</p>
+      </div>
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM</div>
+        <h4>9. Build Reddit Community Presence</h4>
+        <p>Paul or AA team should actively answer questions in r/consulting, r/MBA, r/financialcareers. These threads are heavily cited by AI tools and create organic discovery. One valuable answer per day can generate significant brand mentions over time.</p>
+      </div>
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM</div>
+        <h4>10. Pursue University Partnership Pilot</h4>
+        <p>Approach Wharton's consulting club (natural connection via Paul's MBA) for a piloted licensing arrangement. Even a discounted/free partnership creates powerful "as taught at Wharton" positioning that unlocks other university deals and drives individual course sales.</p>
+      </div>
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM</div>
+        <h4>11. Publish Original Survey: "State of Business Presentations"</h4>
+        <p>Survey 500–1,000 professionals on presentation habits. Takes 4–6 weeks with a simple Typeform survey promoted to the email list. The resulting data page becomes linkable content, press-worthy, and a long-term AI citation asset.</p>
+      </div>
+      <div class="rec-card medium-term">
+        <div class="rec-tag" style="color:#1e40af;">📅 MEDIUM TERM</div>
+        <h4>12. AI Positioning Update: "Learn What AI Can't Teach You"</h4>
+        <p>Update all homepage and course page messaging to directly address the AI tools question: "AI can build slides. It can't teach you the judgment to know if your story is right." This reframe transforms the AI threat into a differentiator and addresses the #1 objection from prospective buyers.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🎯</div><h2>Strategic Long-Term Priorities (6–24 months)</h2></div>
+    <div class="rec-grid">
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC</div>
+        <h4>13. Write and Publish a Book</h4>
+        <p>This is the single highest-impact brand-building move available. A book like "The Consulting Presentation Playbook" would: generate PR/media coverage, create an additional revenue stream, dramatically increase AI citation authority, support speaking engagements, and cement Paul Moss as THE authority in this space. Pitch to McGraw-Hill, Wiley, Portfolio, or HBR Press.</p>
+      </div>
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC</div>
+        <h4>14. Build SlideStart Premium Subscription ($15/month)</h4>
+        <p>Convert SlideStart from pure free resource to freemium product. The user love is already there. Revenue model: Free (browse), Pro ($15/month for downloads + templates), Team ($49/month). Target 2,000 paying users in year 1 = $360k ARR. This is a recurring revenue flywheel that compounds with YouTube audience growth.</p>
+      </div>
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC</div>
+        <h4>15. Launch a Professional Community Platform</h4>
+        <p>"The Analyst Academy Community" — a paid community on Circle or Skool for presentation professionals. Monthly content drops, slide critiques, live Q&As with Paul, networking. At $39/month with 500 members = $19.5k MRR. Could eventually become the go-to professional community for analysts, consultants, and strategy professionals.</p>
+      </div>
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC</div>
+        <h4>16. Create the "Certified Presentations Professional" Ecosystem</h4>
+        <p>The CPP exists but needs a marketing push. Build: (a) corporate verification portal so employers can confirm CPP status, (b) LinkedIn Skills tag lobbying, (c) "CPP Required" job postings in consulting community. When CPP becomes recognized currency, enterprise sales get dramatically easier.</p>
+      </div>
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC</div>
+        <h4>17. Pursue a LinkedIn Learning Licensing Deal</h4>
+        <p>LinkedIn Learning licenses content from external creators. A "Consulting Presentation Masterclass" on LinkedIn Learning reaches millions of LinkedIn members and drives awareness of the brand, even at lower per-student economics. The halo effect on direct course sales would be substantial.</p>
+      </div>
+      <div class="rec-card strategic">
+        <div class="rec-tag" style="color:#5b21b6;">🎯 STRATEGIC</div>
+        <h4>18. Expand to Investment Banking Pitch Deck Market</h4>
+        <p>Investment banking analysts build decks constantly and have very similar needs to consulting analysts. Create an "IB Edition" of the course or specific IB-focused content. This doubles the addressable market with minimal new content creation — just repositioning existing material.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">🚨</div><h2>Risks to Monitor</h2></div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr>
+        <tr>
+          <td><strong>Microsoft Copilot deeply integrated into PowerPoint</strong></td>
+          <td><span class="pill pill-yellow">Medium-High</span></td>
+          <td><span class="pill pill-red">High</span></td>
+          <td>Reframe AA as "judgment training" — the skills AI can't automate. Position Copilot as a tool AA graduates use more effectively.</td>
+        </tr>
+        <tr>
+          <td><strong>Google AI Overviews reducing organic traffic</strong></td>
+          <td><span class="pill pill-red">High</span></td>
+          <td><span class="pill pill-yellow">Medium</span></td>
+          <td>Build GEO/AEO strategy now. Being cited IN AI answers replaces lost organic traffic. Email list also reduces dependency on search.</td>
+        </tr>
+        <tr>
+          <td><strong>Well-funded competitor enters the niche</strong></td>
+          <td><span class="pill pill-yellow">Medium</span></td>
+          <td><span class="pill pill-yellow">Medium</span></td>
+          <td>Build moat: publish book, build community, establish AA/Paul as the named authority. Brand recognition is the main defense.</td>
+        </tr>
+        <tr>
+          <td><strong>Course content aging without updates</strong></td>
+          <td><span class="pill pill-yellow">Medium</span></td>
+          <td><span class="pill pill-yellow">Medium</span></td>
+          <td>Annual content refresh schedule. The "All future course updates" tier in bundles incentivizes premium purchase and ensures content stays current.</td>
+        </tr>
+        <tr>
+          <td><strong>Corporate training budget cuts</strong></td>
+          <td><span class="pill pill-yellow">Medium</span></td>
+          <td><span class="pill pill-yellow">Medium</span></td>
+          <td>Diversify to individual/consumer channel. $297 individual course is relatively recession-resistant for employed professionals investing in career skills.</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="icon">📊</div><h2>90-Day Action Checklist</h2></div>
+    <div class="grid-2">
+      <div>
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">Technical SEO & GEO (Week 1–2)</h4>
+        <ul style="font-size:0.85rem; padding-left:20px; margin-bottom:16px;">
+          <li>☐ Audit robots.txt — allow GPTBot, ClaudeBot, PerplexityBot</li>
+          <li>☐ Add FAQPage schema to all course pages</li>
+          <li>☐ Add Author schema (Paul Moss) to all blog posts</li>
+          <li>☐ Add Course schema to all course pages</li>
+          <li>☐ Set up Google Search Console alerts for AI Overview appearances</li>
+          <li>☐ Audit page speed / Core Web Vitals</li>
+          <li>☐ Ensure all pages are server-side rendered (not JS-only)</li>
+        </ul>
+        
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">Content Creation (Week 1–8)</h4>
+        <ul style="font-size:0.85rem; padding-left:20px; margin-bottom:16px;">
+          <li>☐ Write Pyramid Principle cornerstone guide (Week 2)</li>
+          <li>☐ Write SCQA framework guide (Week 3)</li>
+          <li>☐ Write Ghost Deck guide (Week 4)</li>
+          <li>☐ Start McKinsey slides mega-guide (Weeks 5–6)</li>
+          <li>☐ Waterfall chart tutorial (Week 7)</li>
+          <li>☐ Mekko chart guide (Week 8)</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">Business Development (Month 1–3)</h4>
+        <ul style="font-size:0.85rem; padding-left:20px; margin-bottom:16px;">
+          <li>☐ Design public workshop format and pricing</li>
+          <li>☐ Set workshop date and promote to email list</li>
+          <li>☐ Reach out to Wharton consulting club</li>
+          <li>☐ Explore SlideStart freemium model (start with email capture test)</li>
+          <li>☐ Draft book proposal outline</li>
+          <li>☐ Identify 3–5 "best courses" articles to pursue inclusion in</li>
+        </ul>
+        
+        <h4 style="margin-bottom:10px; font-size:0.9rem;">Brand & Distribution (Month 1–3)</h4>
+        <ul style="font-size:0.85rem; padding-left:20px; margin-bottom:16px;">
+          <li>☐ Create Reddit account for Paul Moss (or AA brand)</li>
+          <li>☐ Join and contribute to r/consulting, r/MBA</li>
+          <li>☐ Begin weekly LinkedIn publishing schedule</li>
+          <li>☐ Update homepage messaging to address AI tools question</li>
+          <li>☐ Survey design for "State of Presentations 2026" research</li>
+          <li>☐ Identify 10 podcast targets for Paul Moss guest appearances</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end recommendations tab -->
+
+</div><!-- end main -->
+
+<div class="footer">
+  <p>Analyst Academy Strategic Intelligence Dashboard — Research compiled March 2026</p>
+  <p style="margin-top:4px;">Data sourced from: theanalystacademy.com, slidestart.com, duarte.com, brightcarbon.com, storytellingwithdata.com, thinkoutsidetheslide.com, semrush.com, ahrefs.com, and other industry sources</p>
+  <p style="margin-top:4px;">For internal use by Paul Moss and Analyst Academy team. Not for distribution.</p>
+</div>
+
+<script>
+function showTab(tabId) {
+  // Hide all
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  
+  // Show selected
+  const tab = document.getElementById('tab-' + tabId);
+  if (tab) tab.classList.add('active');
+  
+  // Highlight nav button
+  const buttons = document.querySelectorAll('.nav button');
+  const tabMap = { exec: 0, aa: 1, market: 2, competitors: 3, pricing: 4, seo: 5, ai: 6, content: 7, recs: 8 };
+  const idx = tabMap[tabId];
+  if (buttons[idx]) buttons[idx].classList.add('active');
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleCollapse(header) {
+  const body = header.nextElementSibling;
+  const chevron = header.querySelector('.chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+// Open first collapsible in each section by default on load
+document.addEventListener('DOMContentLoaded', function() {
+  // No auto-open needed, they can expand manually
+});
+</script>
+</body>
+</html>

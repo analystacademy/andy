@@ -1,11 +1,10 @@
 <section class="aa-legal" id="aa-terms" aria-label="Analyst Academy Terms and Conditions">
 <style>
-.aa-legal{--aa-max:900px;--aa-font:system-ui,-apple-system,Segoe UI,Roboto,Inter,Ubuntu,Helvetica,Arial,sans-serif;--aa-muted:#6b7280;--aa-text:#111827;--aa-bg:#ffffff;--aa-border:#e5e7eb;--aa-accent:#4f46e5;--aa-accent-2:#4338ca}
-@media (prefers-color-scheme: dark){
-  .aa-legal{--aa-muted:#9ca3af;--aa-text:#f9fafb;--aa-bg:#0b0f14;--aa-border:#1f2937;--aa-accent:#8b5cf6;--aa-accent-2:#7c3aed}
-}
-.aa-legal{margin:0 auto;padding:32px 20px;color:var(--aa-text);background:var(--aa-bg);font:16px/1.65 var(--aa-font);max-width:var(--aa-max)}
-.aa-legal h1{font-size:34px;line-height:1.2;margin:0 0 10px;font-weight:800;letter-spacing:-0.02em}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@700;800&family=Inter:wght@400;500;600&display=swap');
+.aa-legal{--aa-max:900px;--aa-heading-font:'DM Sans',Helvetica,Arial,sans-serif;--aa-body-font:'Inter',Helvetica,Arial,sans-serif;--aa-muted:#6b7280;--aa-text:#111827;--aa-bg:#ffffff;--aa-border:#e5e7eb;--aa-accent:#4f46e5;--aa-accent-2:#4338ca}
+
+.aa-legal{margin:0 auto;padding:32px 20px;color:var(--aa-text);background:var(--aa-bg);font:16px/1.65 var(--aa-body-font);max-width:var(--aa-max)}
+.aa-legal h1{font-size:34px;line-height:1.2;margin:0 0 10px;font-weight:800;letter-spacing:-0.02em;font-family:var(--aa-heading-font)}
 .aa-legal .subtitle{color:var(--aa-muted);margin-bottom:22px}
 .aa-legal .badge{display:inline-block;font-size:12px;font-weight:700;background:linear-gradient(90deg,var(--aa-accent),var(--aa-accent-2));color:#fff;border-radius:999px;padding:6px 10px;margin-right:8px}
 .aa-legal .card{border:1px solid var(--aa-border);border-radius:16px;padding:18px 18px;background:color-mix(in srgb, var(--aa-bg) 92%, #fff)}
@@ -15,8 +14,8 @@
 @media (max-width:720px){.aa-legal .toc ul{columns:1}}
 .aa-legal .toc a{display:block;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--aa-text);border:1px dashed transparent}
 .aa-legal .toc a:hover{background:color-mix(in srgb, var(--aa-accent) 8%, var(--aa-bg));border-color:color-mix(in srgb, var(--aa-accent) 35%, var(--aa-border))}
-.aa-legal h2{font-size:22px;line-height:1.35;margin:28px 0 10px;font-weight:800}
-.aa-legal h3{font-size:18px;margin:18px 0 8px;font-weight:700}
+.aa-legal h2{font-size:22px;line-height:1.35;margin:28px 0 10px;font-weight:800;font-family:var(--aa-heading-font)}
+.aa-legal h3{font-size:18px;margin:18px 0 8px;font-weight:700;font-family:var(--aa-heading-font)}
 .aa-legal p{margin:10px 0}
 .aa-legal ul, .aa-legal ol{margin:10px 0 10px 20px}
 .aa-legal li{margin:6px 0}

@@ -563,6 +563,8 @@ function setProgress(pct, label) {
   document.getElementById('progLabel').textContent = label;
 }
 
+const API = 'https://made-surgical-edward-gst.trycloudflare.com';
+
 async function buildAndDownload() {
   const btn = document.getElementById('dlBtn');
   const btnTxt = document.getElementById('btnTxt');
@@ -575,47 +577,29 @@ async function buildAndDownload() {
   progWrap.style.display = 'block';
 
   try {
-    setProgress(10, 'Fetching template...');
-    const resp = await fetch('./base_template.pptx');
-    if (!resp.ok) throw new Error('Failed to load template');
+    setProgress(20, 'Sending to server...');
 
-    setProgress(30, 'Reading file...');
-    const arrayBuffer = await resp.arrayBuffer();
+    const resp = await fetch(`${API}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        primary: pc.replace('#', ''),
+        accent: ac.replace('#', ''),
+        font: font
+      })
+    });
 
-    setProgress(50, 'Applying your colors & fonts...');
-    const zip = await JSZip.loadAsync(arrayBuffer);
+    if (!resp.ok) throw new Error('Server error: ' + resp.status);
 
-    // Process theme files (colors + fonts)
-    const themeFiles = Object.keys(zip.files).filter(n => /ppt\/theme\/theme\d+\.xml/.test(n));
-    for (const tf of themeFiles) {
-      let xml = await zip.files[tf].async('string');
-      xml = swapColors(xml, pc, ac);
-      xml = swapFont(xml, font);
-      zip.file(tf, xml);
-    }
-
-    // Process slide masters + layouts (fonts hardcoded here, bypass theme)
-    const fontFiles = Object.keys(zip.files).filter(n =>
-      /ppt\/slideMasters\/slideMaster\d+\.xml/.test(n) ||
-      /ppt\/slideLayouts\/slideLayout\d+\.xml/.test(n)
-    );
-    for (const ff of fontFiles) {
-      let xml = await zip.files[ff].async('string');
-      xml = swapFont(xml, font);
-      zip.file(ff, xml);
-    }
-
-    setProgress(80, 'Generating file...');
-    const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
-
+    setProgress(80, 'Applying colors and fonts...');
+    const blob = await resp.blob();
     setProgress(100, 'Done!');
 
     const fontSlug = fontLabel.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    const colorSlug = hexClean(pc).toLowerCase();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `template-${colorSlug}-${fontSlug}.pptx`;
+    a.download = `template-${fontSlug}.pptx`;
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -623,7 +607,7 @@ async function buildAndDownload() {
 
     setTimeout(() => { progWrap.style.display = 'none'; }, 2000);
   } catch(e) {
-    alert('Error: ' + e.message);
+    alert('Error generating template: ' + e.message + '\n\nMake sure the server is running.');
     progWrap.style.display = 'none';
   } finally {
     btn.disabled = false;

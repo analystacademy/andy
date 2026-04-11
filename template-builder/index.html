@@ -3,620 +3,844 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Template Builder — Analyst Academy</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<title>Deck Builder — Analyst Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+:root {
+  --black: #1a1a1a;
+  --gray-dark: #333;
+  --gray-mid: #757575;
+  --gray-light: #e8e8e8;
+  --gray-bg: #f9f8f6;
+  --green: #1a8917;
+  --green-light: #e6f4e6;
+  --border: #d0d0d0;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --sans: 'Inter', -apple-system, sans-serif;
+}
+
 body {
-  font-family: 'Inter', sans-serif;
-  background: #F8F7F4;
-  color: #1a1a1a;
+  font-family: var(--sans);
+  background: #fff;
+  color: var(--black);
   min-height: 100vh;
 }
 
-header {
-  background: #fff;
-  border-bottom: 1px solid #e5e5e5;
-  padding: 18px 40px;
+/* NAV */
+nav {
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 56px;
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-header .logo { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-header .logo span { color: #4361EE; }
-
-.container { max-width: 900px; margin: 0 auto; padding: 48px 24px; }
-
-.hero { text-align: center; margin-bottom: 44px; }
-.hero h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 10px; }
-.hero p { font-size: 15px; color: #666; line-height: 1.6; max-width: 460px; margin: 0 auto; }
-
-.card {
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
   background: #fff;
-  border-radius: 16px;
-  padding: 28px 32px;
-  border: 1px solid #e5e5e5;
+  z-index: 100;
+}
+
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--black);
+  text-decoration: none;
+  letter-spacing: -0.3px;
+}
+
+.nav-right {
+  font-size: 13px;
+  color: var(--gray-mid);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-link {
+  color: var(--gray-mid);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.nav-link:hover { color: var(--black); }
+
+/* HERO */
+.hero {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 24px 56px;
+  text-align: center;
+}
+
+.hero-eyebrow {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-mid);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
   margin-bottom: 20px;
 }
-.card h2 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #999; margin-bottom: 22px; }
 
-/* Colors */
-.color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.color-field label { display: block; font-size: 13px; font-weight: 500; color: #555; margin-bottom: 7px; }
-.color-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 14px; border: 1.5px solid #e5e5e5;
-  border-radius: 10px; cursor: pointer; background: #fff;
-  transition: border-color 0.15s;
+.hero h1 {
+  font-family: var(--serif);
+  font-size: 46px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: var(--black);
+  margin-bottom: 18px;
 }
-.color-row:hover { border-color: #bbb; }
-.color-row:focus-within { border-color: #4361EE; }
-.swatch { width: 26px; height: 26px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
-input[type="color"] { width: 0; height: 0; opacity: 0; position: absolute; }
-.hex-label { font-size: 13px; font-family: monospace; font-weight: 500; color: #333; }
 
-.presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
-.preset {
-  display: flex; align-items: center; gap: 6px;
-  padding: 5px 11px; border: 1.5px solid #e5e5e5;
-  border-radius: 20px; cursor: pointer; font-size: 12px;
-  font-weight: 500; color: #555; background: #fff;
-  transition: all 0.15s;
+.hero p {
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--gray-mid);
+  max-width: 540px;
+  margin: 0 auto;
+  font-family: var(--serif);
+  font-weight: 300;
 }
-.preset:hover { border-color: #4361EE; color: #4361EE; }
-.dots { display: flex; gap: 3px; }
-.dot { width: 9px; height: 9px; border-radius: 50%; }
 
-/* Fonts */
-.font-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-@media(max-width:620px){ .font-grid { grid-template-columns: repeat(2,1fr); } .color-grid { grid-template-columns: 1fr; } }
-.font-card {
-  border: 2px solid #e5e5e5; border-radius: 12px;
-  padding: 14px 16px; cursor: pointer; transition: all 0.15s;
+/* DIVIDER */
+.divider {
+  width: 40px;
+  height: 1px;
+  background: var(--border);
+  margin: 48px auto;
 }
-.font-card:hover { border-color: #4361EE; transform: translateY(-1px); }
-.font-card.active { border-color: #4361EE; background: #EEF1FF; }
-.font-preview { font-size: 24px; font-weight: 700; color: #1a1a1a; line-height: 1; margin-bottom: 7px; }
-.font-name { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 2px; }
-.font-desc { font-size: 11px; color: #888; line-height: 1.4; }
 
-/* Preview slides */
-.preview-slides-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 12px;
+/* MAIN LAYOUT */
+.main {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 24px 96px;
 }
-@media(max-width:600px){ .preview-slides-row { grid-template-columns: repeat(2,1fr); } }
 
-.pslide {
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  overflow: hidden;
-  aspect-ratio: 16/9;
-  position: relative;
-  background: #fff;
+/* STEP */
+.step {
+  margin-bottom: 56px;
+}
+
+.step-header {
   display: flex;
-  flex-direction: column;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-light);
 }
 
-.ps-label {
+.step-num {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-mid);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  width: 48px;
+}
+
+.step-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: -0.2px;
+}
+
+/* USE CASE CARDS */
+.use-cases {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.uc-card {
+  background: #fff;
+  padding: 20px 22px;
+  cursor: pointer;
+  transition: background 0.12s;
+  position: relative;
+}
+
+.uc-card:hover { background: var(--gray-bg); }
+
+.uc-card.selected {
+  background: var(--green-light);
+}
+
+.uc-card.selected::after {
+  content: '✓';
   position: absolute;
-  bottom: -20px;
-  left: 0; right: 0;
-  text-align: center;
-  font-size: 10px;
-  color: #aaa;
+  top: 18px;
+  right: 18px;
+  font-size: 13px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+.uc-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--black);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.uc-desc {
+  font-size: 13px;
+  color: var(--gray-mid);
+  line-height: 1.5;
+}
+
+/* TAG SELECTORS */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 7px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--gray-dark);
+  cursor: pointer;
+  transition: all 0.12s;
+  background: #fff;
+  user-select: none;
+}
+
+.tag:hover { border-color: var(--black); color: var(--black); }
+
+.tag.selected {
+  border-color: var(--black);
+  background: var(--black);
+  color: #fff;
+}
+
+/* SLIDE COUNT */
+.slide-counts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.count-btn {
+  padding: 7px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  font-size: 14px;
+  color: var(--gray-dark);
+  cursor: pointer;
+  transition: all 0.12s;
+  background: #fff;
+}
+.count-btn:hover { border-color: var(--black); }
+.count-btn.selected { border-color: var(--black); background: var(--black); color: #fff; }
+
+/* COLORS */
+.color-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.color-swatch-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.12s;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.color-swatch-btn.selected {
+  border-color: var(--black);
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--black);
+}
+
+.color-swatch-btn.custom {
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+  border: 2px solid var(--border);
+}
+
+input[type="color"] { display: none; }
+
+.color-pair-label {
+  font-size: 12px;
+  color: var(--gray-mid);
   font-weight: 500;
 }
 
-/* Title slide */
-.ps-fullbg {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s;
-  padding: 8px;
-}
-.ps-title-text {
-  font-size: 7px;
-  font-weight: 700;
-  color: #fff;
-  text-align: center;
-  transition: font-family 0.3s;
-  line-height: 1.2;
-}
-.ps-subtitle {
-  font-size: 5px;
-  color: rgba(255,255,255,0.7);
-  margin-top: 3px;
-  text-align: center;
+.color-separator {
+  width: 1px;
+  height: 24px;
+  background: var(--border);
+  margin: 0 4px;
 }
 
-/* Content / Chart slides */
-.ps-topbar {
-  height: 14px;
-  width: 100%;
-  transition: background 0.3s;
-  flex-shrink: 0;
-}
-.ps-inner {
-  flex: 1;
-  padding: 5px 6px 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  overflow: hidden;
-}
-.ps-heading {
-  font-size: 6px;
-  font-weight: 700;
-  color: #222;
-  transition: font-family 0.3s;
-}
-.ps-cols {
-  display: flex;
-  gap: 4px;
-  flex: 1;
-  align-items: flex-start;
-  margin-top: 2px;
-}
-.ps-col {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.ps-col-icon {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  transition: background 0.3s;
-  margin-bottom: 2px;
-}
-.ps-col-line {
-  height: 2px;
-  border-radius: 1px;
-  width: 100%;
-}
-.ps-col-line.short { width: 65%; }
-.muted { background: #e0e0e0 !important; }
-
-/* Chart */
-.ps-chart-area {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  position: relative;
-  margin-top: 2px;
-}
-.ps-bar-wrap {
-  display: flex;
-  gap: 2px;
-  align-items: flex-end;
-  height: 28px;
-}
-.ps-bar {
-  flex: 1;
-  border-radius: 1px 1px 0 0;
-  transition: background 0.3s;
-}
-.muted-bar { background: #e0e0e0; }
-.ps-accent-line {
-  height: 2px;
-  width: 100%;
-  border-radius: 1px;
-  margin-top: 2px;
-  transition: background 0.3s;
+.color-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
 }
 
-/* Section slide */
-.ps-half-bg {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 38%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.3s;
-}
-.ps-section-num {
-  font-size: 14px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.9);
-  line-height: 1;
-}
-.ps-section-right {
-  position: absolute;
-  left: 42%; right: 6%;
-  top: 50%;
-  transform: translateY(-50%);
-}
-.ps-section-title {
-  font-size: 6px;
-  font-weight: 700;
-  color: #222;
-  transition: font-family 0.3s;
-  margin-bottom: 3px;
-}
-.ps-section-line {
-  height: 2px;
-  width: 30px;
-  border-radius: 1px;
-  transition: background 0.3s;
-  margin-bottom: 3px;
-}
-
-.preview-meta {
+.color-field label {
+  display: block;
   font-size: 12px;
-  color: #999;
-  text-align: center;
-  margin-top: 24px;
-  font-family: monospace;
+  font-weight: 500;
+  color: var(--gray-mid);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-/* Button */
-.btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 15px; background: #4361EE; color: #fff;
-  border: none; border-radius: 12px; font-size: 15px; font-weight: 600;
-  cursor: pointer; font-family: 'Inter', sans-serif;
-  transition: all 0.15s; margin-top: 6px; letter-spacing: -0.2px;
+.color-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.12s;
 }
-.btn:hover { background: #3451d1; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(67,97,238,0.3); }
-.btn:disabled { background: #aaa; transform: none; box-shadow: none; cursor: not-allowed; }
 
-.spinner {
-  width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.35);
-  border-top-color: #fff; border-radius: 50%;
-  animation: spin 0.6s linear infinite; display: none;
+.color-input-row:hover { border-color: #aaa; }
+.color-input-row:focus-within { border-color: var(--black); }
+
+.color-dot { width: 22px; height: 22px; border-radius: 4px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.08); }
+.color-hex { font-size: 13px; font-family: monospace; color: var(--gray-dark); font-weight: 500; }
+
+/* FONTS */
+.font-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
+
+.font-card {
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.font-card:hover { border-color: #999; }
+.font-card.selected { border-color: var(--black); background: var(--gray-bg); }
+
+.font-preview-text {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+  color: var(--black);
+}
+
+.font-name { font-size: 13px; font-weight: 600; color: var(--black); margin-bottom: 2px; }
+.font-desc { font-size: 12px; color: var(--gray-mid); line-height: 1.4; }
+
+/* SUMMARY */
+.summary-card {
+  background: var(--gray-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+}
+
+.summary-title {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 16px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 24px;
+}
+
+.summary-item {}
+.summary-label { font-size: 11px; font-weight: 600; color: var(--gray-mid); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+.summary-value { font-size: 14px; color: var(--black); font-weight: 500; display: flex; align-items: center; gap: 6px; }
+.summary-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+/* DOWNLOAD BUTTON */
+.download-btn {
+  width: 100%;
+  padding: 15px 24px;
+  background: var(--black);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: -0.1px;
+}
+
+.download-btn:hover { background: #333; }
+.download-btn:active { transform: scale(0.99); }
+.download-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+.btn-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: none;
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.info-bar {
-  display: flex; align-items: center; gap: 8px;
-  padding: 11px 16px; background: #EEF1FF; border-radius: 10px;
-  margin-bottom: 20px; font-size: 13px; color: #4361EE; font-weight: 500;
+.note {
+  font-size: 13px;
+  color: var(--gray-mid);
+  text-align: center;
+  margin-top: 14px;
+  line-height: 1.5;
 }
 
-.progress-wrap { display: none; margin-top: 10px; }
-.progress-label { font-size: 12px; color: #888; margin-bottom: 6px; text-align: center; }
-.progress-bar { height: 4px; background: #e5e5e5; border-radius: 4px; overflow: hidden; }
-.progress-fill { height: 100%; background: #4361EE; border-radius: 4px; width: 0%; transition: width 0.2s; }
+/* SLIDE PREVIEW BAR */
+.slide-preview-bar {
+  background: var(--gray-bg);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  display: none;
+}
+
+.slide-preview-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 10px;
+}
+
+.slide-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slide-chip {
+  font-size: 12px;
+  color: var(--gray-dark);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+
+@media (max-width: 600px) {
+  .use-cases { grid-template-columns: 1fr; }
+  .font-grid { grid-template-columns: repeat(2, 1fr); }
+  .color-inputs { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 34px; }
+}
 </style>
 </head>
 <body>
 
-<header>
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <rect width="24" height="24" rx="6" fill="#4361EE"/>
-    <rect x="5" y="7" width="14" height="2" rx="1" fill="white"/>
-    <rect x="5" y="11" width="10" height="2" rx="1" fill="white"/>
-    <rect x="5" y="15" width="12" height="2" rx="1" fill="white"/>
-  </svg>
-  <span class="logo">Analyst<span>Academy</span> Template Builder</span>
-</header>
+<nav>
+  <a class="nav-logo" href="#">Analyst Academy</a>
+  <div class="nav-right">
+    <a class="nav-link" href="https://theanalystacademy.com">Courses</a>
+    <a class="nav-link" href="https://slidestart.com">SlideStart</a>
+  </div>
+</nav>
 
-<div class="container">
+<div class="hero">
+  <div class="hero-eyebrow">Deck Builder</div>
+  <h1>Build a presentation<br>made for your moment.</h1>
+  <p>Tell us what you need. We'll assemble the right slides, apply your brand, and hand you a ready-to-use deck.</p>
+</div>
 
-  <div class="hero">
-    <h1>Build your custom template</h1>
-    <p>Pick your brand colors and font style. Download a ready-to-use PowerPoint template in seconds.</p>
+<div class="divider"></div>
+
+<div class="main">
+
+  <!-- STEP 1: USE CASE -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">01</span>
+      <span class="step-title">What's this deck for?</span>
+    </div>
+    <div class="use-cases" id="useCaseGrid">
+      <div class="uc-card" data-uc="pitch_ceo" onclick="selectUseCase(this)">
+        <div class="uc-name">CEO / Executive Pitch</div>
+        <div class="uc-desc">Pitching a new idea or initiative to senior leadership</div>
+      </div>
+      <div class="uc-card" data-uc="investor_pitch" onclick="selectUseCase(this)">
+        <div class="uc-name">Investor / VC Pitch</div>
+        <div class="uc-desc">Fundraising, investor updates, or board presentations</div>
+      </div>
+      <div class="uc-card" data-uc="consulting_report" onclick="selectUseCase(this)">
+        <div class="uc-name">Consulting / Strategy</div>
+        <div class="uc-desc">Analysis, findings, and strategic recommendations</div>
+      </div>
+      <div class="uc-card" data-uc="project_proposal" onclick="selectUseCase(this)">
+        <div class="uc-name">Project Proposal</div>
+        <div class="uc-desc">Proposing a project, budget request, or initiative</div>
+      </div>
+      <div class="uc-card" data-uc="board_update" onclick="selectUseCase(this)">
+        <div class="uc-name">Board / Quarterly Review</div>
+        <div class="uc-desc">Board meetings, QBRs, or executive business reviews</div>
+      </div>
+      <div class="uc-card" data-uc="sales_deck" onclick="selectUseCase(this)">
+        <div class="uc-name">Sales / Client Proposal</div>
+        <div class="uc-desc">Winning new clients or presenting a proposal</div>
+      </div>
+      <div class="uc-card" data-uc="team_update" onclick="selectUseCase(this)">
+        <div class="uc-name">Team / All-Hands Update</div>
+        <div class="uc-desc">Weekly, monthly, or quarterly team update</div>
+      </div>
+      <div class="uc-card" data-uc="training" onclick="selectUseCase(this)">
+        <div class="uc-name">Training / Workshop</div>
+        <div class="uc-desc">Educational content, onboarding, or skills training</div>
+      </div>
+    </div>
   </div>
 
-  <div class="info-bar">
-    <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-      <circle cx="7.5" cy="7.5" r="6.5" stroke="#4361EE" stroke-width="1.4"/>
-      <path d="M7.5 6.5v4.5M7.5 4.5v.5" stroke="#4361EE" stroke-width="1.4" stroke-linecap="round"/>
-    </svg>
-    214-slide Professional Presentation Template
+  <!-- STEP 2: STYLE -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">02</span>
+      <span class="step-title">What's the style?</span>
+    </div>
+    <div class="tags" id="styleGrid">
+      <div class="tag selected" data-style="balanced" onclick="selectTag(this, 'style')">Balanced</div>
+      <div class="tag" data-style="data" onclick="selectTag(this, 'style')">Data-heavy</div>
+      <div class="tag" data-style="narrative" onclick="selectTag(this, 'style')">Story-driven</div>
+      <div class="tag" data-style="visual" onclick="selectTag(this, 'style')">Visual-first</div>
+      <div class="tag" data-style="minimal" onclick="selectTag(this, 'style')">Minimal / Text-light</div>
+    </div>
   </div>
 
-  <!-- COLORS -->
-  <div class="card">
-    <h2>🎨 Brand Colors</h2>
-    <div class="color-grid">
+  <!-- STEP 3: SLIDE COUNT -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">03</span>
+      <span class="step-title">How many slides?</span>
+    </div>
+    <div class="slide-counts">
+      <div class="count-btn" data-count="10" onclick="selectCount(this)">~10 slides</div>
+      <div class="count-btn selected" data-count="20" onclick="selectCount(this)">~20 slides</div>
+      <div class="count-btn" data-count="30" onclick="selectCount(this)">~30 slides</div>
+      <div class="count-btn" data-count="50" onclick="selectCount(this)">50+ slides</div>
+    </div>
+    <div class="slide-preview-bar" id="slidePreviewBar">
+      <div class="slide-preview-label">Slide types included</div>
+      <div class="slide-chips" id="slideChips"></div>
+    </div>
+  </div>
+
+  <!-- STEP 4: COLORS -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">04</span>
+      <span class="step-title">Choose your colors</span>
+    </div>
+
+    <div class="color-row" id="presetSwatches">
+      <div class="color-swatch-btn selected" data-p="1A1A2E" data-a="E94560" style="background:#1A1A2E" onclick="applyPreset(this)" title="Midnight"></div>
+      <div class="color-swatch-btn" data-p="0F4C75" data-a="1B9CFC" style="background:#0F4C75" onclick="applyPreset(this)" title="Ocean"></div>
+      <div class="color-swatch-btn" data-p="1B4332" data-a="52B788" style="background:#1B4332" onclick="applyPreset(this)" title="Forest"></div>
+      <div class="color-swatch-btn" data-p="212529" data-a="4361EE" style="background:#212529" onclick="applyPreset(this)" title="Corporate"></div>
+      <div class="color-swatch-btn" data-p="7B2D8B" data-a="F5A623" style="background:#7B2D8B" onclick="applyPreset(this)" title="Royal"></div>
+      <div class="color-swatch-btn" data-p="B5451B" data-a="F4A261" style="background:#B5451B" onclick="applyPreset(this)" title="Ember"></div>
+      <div class="color-swatch-btn" data-p="003049" data-a="FCBF49" style="background:#003049" onclick="applyPreset(this)" title="Navy Gold"></div>
+      <div class="color-swatch-btn" data-p="6A0572" data-a="C77DFF" style="background:#6A0572" onclick="applyPreset(this)" title="Violet"></div>
+      <div class="color-separator"></div>
+      <span class="color-pair-label">Or enter your own:</span>
+    </div>
+
+    <div class="color-inputs">
       <div class="color-field">
-        <label>Primary Color</label>
-        <div class="color-row" onclick="document.getElementById('cp').click()">
-          <div class="swatch" id="ps" style="background:#4361EE"></div>
-          <input type="color" id="cp" value="#4361EE" oninput="setColor('p',this.value)">
-          <span class="hex-label" id="ph">#4361EE</span>
+        <label>Primary</label>
+        <div class="color-input-row" onclick="document.getElementById('cp').click()">
+          <div class="color-dot" id="cpDot" style="background:#1A1A2E"></div>
+          <input type="color" id="cp" value="#1A1A2E" oninput="updateCustomColor('p', this.value)">
+          <span class="color-hex" id="cpHex">#1A1A2E</span>
         </div>
       </div>
       <div class="color-field">
-        <label>Accent Color</label>
-        <div class="color-row" onclick="document.getElementById('ca').click()">
-          <div class="swatch" id="as" style="background:#FF6B35"></div>
-          <input type="color" id="ca" value="#FF6B35" oninput="setColor('a',this.value)">
-          <span class="hex-label" id="ah">#FF6B35</span>
+        <label>Accent</label>
+        <div class="color-input-row" onclick="document.getElementById('ca').click()">
+          <div class="color-dot" id="caDot" style="background:#E94560"></div>
+          <input type="color" id="ca" value="#E94560" oninput="updateCustomColor('a', this.value)">
+          <span class="color-hex" id="caHex">#E94560</span>
         </div>
       </div>
     </div>
-
-    <div class="presets">
-      <button class="preset" onclick="preset('#1A1A2E','#E94560')"><div class="dots"><div class="dot" style="background:#1A1A2E"></div><div class="dot" style="background:#E94560"></div></div>Midnight</button>
-      <button class="preset" onclick="preset('#0F4C75','#1B9CFC')"><div class="dots"><div class="dot" style="background:#0F4C75"></div><div class="dot" style="background:#1B9CFC"></div></div>Ocean</button>
-      <button class="preset" onclick="preset('#1B4332','#52B788')"><div class="dots"><div class="dot" style="background:#1B4332"></div><div class="dot" style="background:#52B788"></div></div>Forest</button>
-      <button class="preset" onclick="preset('#6A0572','#C77DFF')"><div class="dots"><div class="dot" style="background:#6A0572"></div><div class="dot" style="background:#C77DFF"></div></div>Violet</button>
-      <button class="preset" onclick="preset('#B5451B','#F4A261')"><div class="dots"><div class="dot" style="background:#B5451B"></div><div class="dot" style="background:#F4A261"></div></div>Ember</button>
-      <button class="preset" onclick="preset('#212529','#4361EE')"><div class="dots"><div class="dot" style="background:#212529"></div><div class="dot" style="background:#4361EE"></div></div>Corporate</button>
-      <button class="preset" onclick="preset('#7B2D8B','#F5A623')"><div class="dots"><div class="dot" style="background:#7B2D8B"></div><div class="dot" style="background:#F5A623"></div></div>Royal</button>
-      <button class="preset" onclick="preset('#003049','#FCBF49')"><div class="dots"><div class="dot" style="background:#003049"></div><div class="dot" style="background:#FCBF49"></div></div>Navy Gold</button>
-    </div>
   </div>
 
-  <!-- FONTS -->
-  <div class="card">
-    <h2>✏️ Font Style</h2>
+  <!-- STEP 5: FONTS -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">05</span>
+      <span class="step-title">Choose a font style</span>
+    </div>
     <div class="font-grid">
-      <div class="font-card active" data-font="Trebuchet MS" onclick="selectFont(this)">
-        <div class="font-preview" style="font-family:'Trebuchet MS'">Aa</div>
-        <div class="font-name">Classic Consulting</div>
-        <div class="font-desc">Timeless McKinsey feel</div>
+      <div class="font-card selected" data-font="Trebuchet MS" data-label="Classic" onclick="selectFont(this)">
+        <div class="font-preview-text" style="font-family:'Trebuchet MS'">Ag</div>
+        <div class="font-name">Classic</div>
+        <div class="font-desc">Timeless and professional</div>
       </div>
-      <div class="font-card" data-font="Calibri" onclick="selectFont(this)">
-        <div class="font-preview" style="font-family:Calibri">Aa</div>
-        <div class="font-name">Professional</div>
-        <div class="font-desc">Universal corporate</div>
+      <div class="font-card" data-font="Calibri" data-label="Clean" onclick="selectFont(this)">
+        <div class="font-preview-text" style="font-family:Calibri">Ag</div>
+        <div class="font-name">Clean</div>
+        <div class="font-desc">Modern and universal</div>
       </div>
-      <div class="font-card" data-font="Georgia" onclick="selectFont(this)">
-        <div class="font-preview" style="font-family:Georgia">Aa</div>
+      <div class="font-card" data-font="Georgia" data-label="Editorial" onclick="selectFont(this)">
+        <div class="font-preview-text" style="font-family:Georgia">Ag</div>
         <div class="font-name">Editorial</div>
-        <div class="font-desc">Reports & narratives</div>
+        <div class="font-desc">Elegant serif — great for reports</div>
       </div>
-      <div class="font-card" data-font="Arial" onclick="selectFont(this)">
-        <div class="font-preview" style="font-family:Arial">Aa</div>
-        <div class="font-name">Modern & Clean</div>
-        <div class="font-desc">Tech & startups</div>
+      <div class="font-card" data-font="Arial" data-label="Sans-serif" onclick="selectFont(this)">
+        <div class="font-preview-text" style="font-family:Arial">Ag</div>
+        <div class="font-name">Sans-serif</div>
+        <div class="font-desc">Neutral and readable</div>
       </div>
-      <div class="font-card" data-font="Arial Black" onclick="selectFont(this)">
-        <div class="font-preview" style="font-family:'Arial Black'">Aa</div>
-        <div class="font-name">Bold & Impactful</div>
-        <div class="font-desc">Strong pitch decks</div>
+      <div class="font-card" data-font="Arial Black" data-label="Bold" onclick="selectFont(this)">
+        <div class="font-preview-text" style="font-family:'Arial Black'">Ag</div>
+        <div class="font-name">Bold</div>
+        <div class="font-desc">Strong headlines, pitch decks</div>
       </div>
-      <div class="font-card" data-font="Palatino Linotype" onclick="selectFont(this)">
-        <div class="font-preview" style="font-family:'Palatino Linotype',Palatino">Aa</div>
-        <div class="font-name">Elegant</div>
-        <div class="font-desc">Sophisticated & refined</div>
-      </div>
-      <div class="font-card" data-font="Comic Sans MS" onclick="selectFont(this)">
-        <div class="font-preview" style="font-family:'Comic Sans MS'">Aa</div>
-        <div class="font-name">😂 Wild Card</div>
-        <div class="font-desc">For testing only</div>
+      <div class="font-card" data-font="Palatino Linotype" data-label="Refined" onclick="selectFont(this)">
+        <div class="font-preview-text" style="font-family:'Palatino Linotype',Palatino">Ag</div>
+        <div class="font-name">Refined</div>
+        <div class="font-desc">Sophisticated and elegant</div>
       </div>
     </div>
   </div>
 
-  <!-- PREVIEW -->
-  <div class="card">
-    <h2>👁 Live Preview</h2>
-    <div class="preview-slides-row">
-
-      <!-- Title slide -->
-      <div class="pslide" id="ps_title">
-        <div class="ps-fullbg" id="ps_title_bg">
-          <div class="ps-title-text" id="ps_title_font">Presentation Title</div>
-          <div class="ps-subtitle" id="ps_title_sub">Company Name · 2026</div>
-        </div>
-        <div class="ps-label">Title</div>
-      </div>
-
-      <!-- Content slide -->
-      <div class="pslide" id="ps_content">
-        <div class="ps-topbar" id="ps_content_bar"></div>
-        <div class="ps-inner">
-          <div class="ps-heading" id="ps_content_font">Slide Heading</div>
-          <div class="ps-cols">
-            <div class="ps-col">
-              <div class="ps-col-icon" id="ps_icon1"></div>
-              <div class="ps-col-line muted"></div>
-              <div class="ps-col-line muted short"></div>
-            </div>
-            <div class="ps-col">
-              <div class="ps-col-icon" id="ps_icon2"></div>
-              <div class="ps-col-line muted"></div>
-              <div class="ps-col-line muted short"></div>
-            </div>
-            <div class="ps-col">
-              <div class="ps-col-icon" id="ps_icon3"></div>
-              <div class="ps-col-line muted"></div>
-              <div class="ps-col-line muted short"></div>
-            </div>
-          </div>
-        </div>
-        <div class="ps-label">Content</div>
-      </div>
-
-      <!-- Chart slide -->
-      <div class="pslide" id="ps_chart">
-        <div class="ps-topbar" id="ps_chart_bar"></div>
-        <div class="ps-inner">
-          <div class="ps-heading" id="ps_chart_font">Data & Insights</div>
-          <div class="ps-chart-area">
-            <div class="ps-bar-wrap">
-              <div class="ps-bar" id="ps_bar1" style="height:55%"></div>
-              <div class="ps-bar muted-bar" style="height:35%"></div>
-              <div class="ps-bar" id="ps_bar2" style="height:70%"></div>
-              <div class="ps-bar muted-bar" style="height:45%"></div>
-              <div class="ps-bar" id="ps_bar3" style="height:60%"></div>
-              <div class="ps-bar muted-bar" style="height:25%"></div>
-            </div>
-            <div class="ps-accent-line" id="ps_accent_line"></div>
-          </div>
-        </div>
-        <div class="ps-label">Chart</div>
-      </div>
-
-      <!-- Section divider -->
-      <div class="pslide" id="ps_section">
-        <div class="ps-half-bg" id="ps_section_bg">
-          <div class="ps-section-num" id="ps_section_num">01</div>
-        </div>
-        <div class="ps-section-right">
-          <div class="ps-section-title" id="ps_section_font">Section Title</div>
-          <div class="ps-section-line" id="ps_section_line"></div>
-          <div class="ps-col-line muted" style="width:70%;margin-top:4px"></div>
-        </div>
-        <div class="ps-label">Section</div>
-      </div>
-
+  <!-- STEP 6: GENERATE -->
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">06</span>
+      <span class="step-title">Generate your deck</span>
     </div>
-    <div class="preview-meta" id="pvLabel">Classic Consulting · #4361EE · #FF6B35</div>
-  </div>
 
-  <!-- DOWNLOAD -->
-  <button class="btn" id="dlBtn" onclick="buildAndDownload()">
-    <span id="btnTxt">⬇ Download Custom Template (.pptx)</span>
-    <div class="spinner" id="spin"></div>
-  </button>
-  <div class="progress-wrap" id="progWrap">
-    <div class="progress-label" id="progLabel">Loading template...</div>
-    <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+    <div class="summary-card" id="summaryCard">
+      <div class="summary-title">Your deck</div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Use case</div>
+          <div class="summary-value" id="sumUseCase">—</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Style</div>
+          <div class="summary-value" id="sumStyle">Balanced</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Slide count</div>
+          <div class="summary-value" id="sumCount">~20 slides</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Font</div>
+          <div class="summary-value" id="sumFont">Classic</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Colors</div>
+          <div class="summary-value" id="sumColors">
+            <div class="summary-dot" id="sumDot1" style="background:#1A1A2E"></div>
+            <div class="summary-dot" id="sumDot2" style="background:#E94560"></div>
+            <span id="sumColorText">#1A1A2E · #E94560</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="download-btn" id="dlBtn" onclick="generate()">
+      <span id="btnText">Build my deck</span>
+      <div class="btn-spinner" id="spinner"></div>
+    </button>
+    <p class="note" id="noteText">Your customized .pptx will download automatically.</p>
   </div>
 
 </div>
 
 <script>
-let pc = '#4361EE', ac = '#FF6B35', font = 'Trebuchet MS', fontLabel = 'Classic Consulting';
+const API = 'https://meal-stewart-rehab-lodging.trycloudflare.com';
 
-function setColor(type, val) {
-  if (type === 'p') {
-    pc = val;
-    document.getElementById('ps').style.background = val;
-    document.getElementById('ph').textContent = val.toUpperCase();
-    document.getElementById('cp').value = val;
-  } else {
-    ac = val;
-    document.getElementById('as').style.background = val;
-    document.getElementById('ah').textContent = val.toUpperCase();
-    document.getElementById('ca').value = val;
-  }
-  updatePreview();
+let state = {
+  useCase: null,
+  style: 'balanced',
+  count: '20',
+  primary: '1A1A2E',
+  accent: 'E94560',
+  font: 'Trebuchet MS',
+  fontLabel: 'Classic'
+};
+
+// USE CASE NAMES
+const ucNames = {
+  pitch_ceo: 'CEO / Executive Pitch',
+  investor_pitch: 'Investor / VC Pitch',
+  consulting_report: 'Consulting / Strategy',
+  project_proposal: 'Project Proposal',
+  board_update: 'Board / Quarterly Review',
+  sales_deck: 'Sales / Client Proposal',
+  team_update: 'Team / All-Hands Update',
+  training: 'Training / Workshop'
+};
+
+function selectUseCase(el) {
+  document.querySelectorAll('.uc-card').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.useCase = el.dataset.uc;
+  updateSummary();
 }
 
-function preset(p, a) { setColor('p', p); setColor('a', a); }
+function selectTag(el, group) {
+  el.closest('.tags').querySelectorAll('.tag').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state[group] = el.dataset[group] || el.dataset.style;
+  updateSummary();
+}
+
+function selectCount(el) {
+  document.querySelectorAll('.count-btn').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.count = el.dataset.count;
+  updateSummary();
+}
+
+function applyPreset(el) {
+  document.querySelectorAll('.color-swatch-btn').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.primary = el.dataset.p;
+  state.accent = el.dataset.a;
+  syncColorInputs();
+  updateSummary();
+}
+
+function updateCustomColor(type, val) {
+  const hex = val.replace('#', '').toUpperCase();
+  if (type === 'p') {
+    state.primary = hex;
+    document.getElementById('cpDot').style.background = val;
+    document.getElementById('cpHex').textContent = val.toUpperCase();
+  } else {
+    state.accent = hex;
+    document.getElementById('caDot').style.background = val;
+    document.getElementById('caHex').textContent = val.toUpperCase();
+  }
+  document.querySelectorAll('.color-swatch-btn').forEach(e => e.classList.remove('selected'));
+  updateSummary();
+}
+
+function syncColorInputs() {
+  const p = '#' + state.primary;
+  const a = '#' + state.accent;
+  document.getElementById('cp').value = p;
+  document.getElementById('cpDot').style.background = p;
+  document.getElementById('cpHex').textContent = p.toUpperCase();
+  document.getElementById('ca').value = a;
+  document.getElementById('caDot').style.background = a;
+  document.getElementById('caHex').textContent = a.toUpperCase();
+}
 
 function selectFont(el) {
-  document.querySelectorAll('.font-card').forEach(e => e.classList.remove('active'));
-  el.classList.add('active');
-  font = el.dataset.font;
-  fontLabel = el.querySelector('.font-name').textContent;
-  updatePreview();
+  document.querySelectorAll('.font-card').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.font = el.dataset.font;
+  state.fontLabel = el.dataset.label;
+  updateSummary();
 }
 
-function updatePreview() {
-  const ff = `'${font}', sans-serif`;
-
-  // Title slide
-  document.getElementById('ps_title_bg').style.background = pc;
-  document.getElementById('ps_title_font').style.fontFamily = ff;
-
-  // Content slide
-  document.getElementById('ps_content_bar').style.background = pc;
-  document.getElementById('ps_content_font').style.fontFamily = ff;
-  ['ps_icon1','ps_icon2','ps_icon3'].forEach(id => document.getElementById(id).style.background = ac);
-
-  // Chart slide
-  document.getElementById('ps_chart_bar').style.background = pc;
-  document.getElementById('ps_chart_font').style.fontFamily = ff;
-  ['ps_bar1','ps_bar2','ps_bar3'].forEach(id => document.getElementById(id).style.background = pc);
-  document.getElementById('ps_accent_line').style.background = ac;
-
-  // Section slide
-  document.getElementById('ps_section_bg').style.background = pc;
-  document.getElementById('ps_section_font').style.fontFamily = ff;
-  document.getElementById('ps_section_line').style.background = ac;
-
-  document.getElementById('pvLabel').textContent =
-    `${fontLabel}  ·  ${pc.toUpperCase()}  ·  ${ac.toUpperCase()}`;
+function updateSummary() {
+  document.getElementById('sumUseCase').textContent = state.useCase ? ucNames[state.useCase] : '— select above';
+  document.getElementById('sumStyle').textContent = state.style.charAt(0).toUpperCase() + state.style.slice(1);
+  document.getElementById('sumCount').textContent = '~' + state.count + ' slides';
+  document.getElementById('sumFont').textContent = state.fontLabel;
+  document.getElementById('sumDot1').style.background = '#' + state.primary;
+  document.getElementById('sumDot2').style.background = '#' + state.accent;
+  document.getElementById('sumColorText').textContent = '#' + state.primary + ' · #' + state.accent;
 }
 
-function hexClean(h) { return h.replace('#','').toUpperCase(); }
+async function generate() {
+  if (!state.useCase) {
+    alert('Please select a use case first.');
+    return;
+  }
 
-function swapColors(xml, primary, accent) {
-  const p = hexClean(primary), a = hexClean(accent);
-  // Structure: <a:accent1><a:srgbClr val="XXXXXX"/></a:accent1> — all inline
-  xml = xml.replace(/(<a:accent1><a:srgbClr val=")[^"]+("\/><\/a:accent1>)/g, `$1${p}$2`);
-  xml = xml.replace(/(<a:accent5><a:srgbClr val=")[^"]+("\/><\/a:accent5>)/g, `$1${p}$2`);
-  xml = xml.replace(/(<a:accent2><a:srgbClr val=")[^"]+("\/><\/a:accent2>)/g, `$1${a}$2`);
-  return xml;
-}
-
-function swapFont(xml, fontName) {
-  // Theme fonts
-  xml = xml.replace(/(<a:majorFont><a:latin typeface=")[^"]+(")/g, `$1${fontName}$2`);
-  xml = xml.replace(/(<a:minorFont><a:latin typeface=")[^"]+(")/g, `$1${fontName}$2`);
-  // Hardcoded fonts in slide masters/layouts (Trebuchet MS and Arial)
-  xml = xml.replace(/(<a:latin typeface=")(?:Trebuchet MS|Arial)(")/g, `$1${fontName}$2`);
-  return xml;
-}
-
-function setProgress(pct, label) {
-  document.getElementById('progFill').style.width = pct + '%';
-  document.getElementById('progLabel').textContent = label;
-}
-
-const API = 'https://made-surgical-edward-gst.trycloudflare.com';
-
-async function buildAndDownload() {
   const btn = document.getElementById('dlBtn');
-  const btnTxt = document.getElementById('btnTxt');
-  const spinner = document.getElementById('spin');
-  const progWrap = document.getElementById('progWrap');
+  const btnText = document.getElementById('btnText');
+  const spinner = document.getElementById('spinner');
+  const note = document.getElementById('noteText');
 
   btn.disabled = true;
-  btnTxt.style.display = 'none';
+  btnText.style.display = 'none';
   spinner.style.display = 'block';
-  progWrap.style.display = 'block';
+  note.textContent = 'Building your deck — this takes about 10 seconds...';
 
   try {
-    setProgress(20, 'Sending to server...');
-
     const resp = await fetch(`${API}/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        primary: pc.replace('#', ''),
-        accent: ac.replace('#', ''),
-        font: font
+        primary: state.primary,
+        accent: state.accent,
+        font: state.font,
+        use_case: state.useCase,
+        style: state.style,
+        count: parseInt(state.count)
       })
     });
 
-    if (!resp.ok) throw new Error('Server error: ' + resp.status);
+    if (!resp.ok) throw new Error('Server error ' + resp.status);
 
-    setProgress(80, 'Applying colors and fonts...');
     const blob = await resp.blob();
-    setProgress(100, 'Done!');
-
-    const fontSlug = fontLabel.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const ucSlug = state.useCase.replace('_', '-');
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `template-${fontSlug}.pptx`;
+    a.download = `deck-${ucSlug}.pptx`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
-
-    setTimeout(() => { progWrap.style.display = 'none'; }, 2000);
+    note.textContent = 'Done! Your deck downloaded. Open it in PowerPoint and start editing.';
   } catch(e) {
-    alert('Error generating template: ' + e.message + '\n\nMake sure the server is running.');
-    progWrap.style.display = 'none';
+    note.textContent = 'Something went wrong. Please try again.';
+    alert('Error: ' + e.message);
   } finally {
     btn.disabled = false;
-    btnTxt.style.display = 'block';
+    btnText.style.display = 'block';
     spinner.style.display = 'none';
   }
 }
 
-updatePreview();
+updateSummary();
 </script>
 </body>
 </html>
